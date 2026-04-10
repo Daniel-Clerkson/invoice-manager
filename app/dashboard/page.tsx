@@ -22,7 +22,7 @@ export default function UserDashboard() {
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
             <p className="text-slate-500">Manage and track your invoices</p>
           </div>
-          <button className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 transition-all active:scale-95">
+          <button onClick={()=>redirect("/dashboard/create")} className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 transition-all active:scale-95">
             <Plus size={18} /> Create Invoice
           </button>
         </div>
