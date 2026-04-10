@@ -4,6 +4,7 @@ import React from 'react';
 import { FileText, Clock, CheckCircle2, XCircle, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import {useRouter} from 'next-navigation';
 
 export default function UserDashboard() {
   const invoices = [
@@ -12,6 +13,7 @@ export default function UserDashboard() {
     { id: 'INV-003', irn: 'IRN-2026-003', date: '2026-04-05', amount: 125000, status: 'rejected' },
     { id: 'INV-004', irn: 'IRN-2026-004', date: '2026-04-03', amount: 890000, status: 'pending' },
   ];
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -22,7 +24,7 @@ export default function UserDashboard() {
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
             <p className="text-slate-500">Manage and track your invoices</p>
           </div>
-          <button onClick={()=>redirect("/dashboard/create")} className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 transition-all active:scale-95">
+          <button onClick={()=>router.push("/dashboard/create")} className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 transition-all active:scale-95">
             <Plus size={18} /> Create Invoice
           </button>
         </div>
