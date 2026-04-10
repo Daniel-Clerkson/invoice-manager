@@ -1,65 +1,206 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+
+// --- Types & Mock Data ---
+type Role = "user" | "admin" | "superadmin";
+
+interface User {
+  email: string;
+  role: Role;
+  name: string;
+}
+
+const MOCK_USERS = [
+  { email: "user@business.com", password: "user123", role: "user" as Role, name: "John User" },
+  { email: "admin@business.com", password: "admin123", role: "admin" as Role, name: "Jane Admin" },
+  { email: "superadmin@business.com", password: "super123", role: "superadmin" as Role, name: "Boss Super" },
+];
+
+const QUICK_CREDS: Record<Role, { email: string; password: string }> = {
+  user: { email: "user@business.com", password: "user123" },
+  admin: { email: "admin@business.com", password: "admin123" },
+  superadmin: { email: "superadmin@business.com", password: "super123" },
+};
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "" }>({
+    message: "",
+    type: "",
+  });
+
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast({ message: "", type: "" }), 2500);
+  };
+
+  const handleSignIn = async (overrideEmail?: string, overridePassword?: string) => {
+    const resolvedEmail = overrideEmail ?? email;
+    const resolvedPassword = overridePassword ?? password;
+
+    setError("");
+    if (!resolvedEmail || !resolvedPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    setLoading(true);
+    
+    // Simulate API Delay
+    await new Promise((r) => setTimeout(r, 800));
+    
+    const user = MOCK_USERS.find((u) => u.email === resolvedEmail && u.password === resolvedPassword);
+
+    if (user) {
+      showToast(`Welcome back, ${user.name}!`, "success");
+      
+      // Redirect based on role
+      setTimeout(() => {
+        if (user.role === "admin" || user.role === "superadmin") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
+      }, 1000);
+    } else {
+      setLoading(false);
+      setError("Invalid email or password.");
+      showToast("Login failed", "error");
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-[#F1F3F9] flex items-center justify-center px-6 py-12 font-sans">
+      {/* Toast Notification */}
+      {toast.message && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl text-white text-sm font-bold shadow-xl ${
+            toast.type === "success" ? "bg-emerald-600" : "bg-rose-500"
+          }`}
+        >
+          {toast.message}
+        </motion.div>
+      )}
+
+      <div className="flex items-center justify-between w-full max-w-5xl gap-20">
+        {/* Left Panel - Branding */}
+        <div className="flex-1 hidden lg:block">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="8" height="10" rx="2" fill="white" opacity="0.9" />
+                <rect x="13" y="3" width="8" height="6" rx="2" fill="white" opacity="0.5" />
+                <rect x="13" y="11" width="8" height="10" rx="2" fill="white" opacity="0.7" />
+                <rect x="3" y="15" width="8" height="6" rx="2" fill="white" opacity="0.6" />
+              </svg>
+            </div>
+            <span className="text-2xl font-black text-slate-900 tracking-tight">Invoice Manager</span>
+          </div>
+
+          <h2 className="text-4xl font-black text-slate-900 leading-tight mb-4">
+            Simplify your <span className="text-indigo-600">Compliance</span> workflow.
+          </h2>
+          <p className="text-slate-500 text-lg leading-relaxed max-w-md mb-10">
+            Automated invoice creation, real-time admin review, and FIRS-compliant submission tools.
           </p>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <p className="font-bold text-slate-700">Enterprise Grade Security</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+              </div>
+              <p className="font-bold text-slate-700">FIRS Compliance Ready</p>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Right Panel - Login Card */}
+        <div className="bg-white rounded-[2rem] p-10 w-full max-w-[440px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
+          <div className="mb-8">
+            <h3 className="text-2xl font-black text-slate-900">Sign In</h3>
+            <p className="text-slate-400 text-sm mt-1">Enter your details to access your portal</p>
+          </div>
+
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                className={`w-full h-12 border-2 rounded-xl bg-slate-50 px-4 text-sm font-medium outline-none transition-all focus:border-indigo-600 focus:bg-white ${
+                  error ? "border-rose-400" : "border-slate-50"
+                }`}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                onKeyDown={(e) => e.key === "Enter" && handleSignIn()}
+                className={`w-full h-12 border-2 rounded-xl bg-slate-50 px-4 text-sm font-medium outline-none transition-all focus:border-indigo-600 focus:bg-white ${
+                  error ? "border-rose-400" : "border-slate-50"
+                }`}
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-xs font-bold text-rose-500 mt-3">{error}</p>}
+
+          <button
+            onClick={() => handleSignIn()}
+            disabled={loading}
+            className="w-full h-12 bg-slate-900 text-white rounded-xl text-sm font-bold mt-8 transition-all hover:bg-indigo-600 active:scale-95 disabled:opacity-50"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {loading ? "Authenticating..." : "Sign In to Dashboard"}
+          </button>
+
+          {/* Quick Login Section */}
+          <div className="mt-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-slate-100" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Test Access</span>
+              <div className="flex-1 h-px bg-slate-100" />
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2">
+              {(["user", "admin", "superadmin"] as Role[]).map((role) => (
+                <button
+                  key={role}
+                  onClick={() => {
+                    setEmail(QUICK_CREDS[role].email);
+                    setPassword(QUICK_CREDS[role].password);
+                    handleSignIn(QUICK_CREDS[role].email, QUICK_CREDS[role].password);
+                  }}
+                  className="py-2 border border-slate-100 rounded-lg text-[10px] font-black uppercase text-slate-500 hover:border-indigo-600 hover:text-indigo-600 transition-all bg-white"
+                >
+                  {role === "superadmin" ? "S. Admin" : role}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
