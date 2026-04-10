@@ -4,7 +4,7 @@ import React from 'react';
 import { FileText, Clock, CheckCircle2, XCircle, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
-import {useRouter} from 'next-navigation';
+import { useRouter } from 'next/navigation';
 
 export default function UserDashboard() {
   const invoices = [
