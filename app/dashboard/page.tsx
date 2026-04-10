@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import {useRouter} from "next/navigation"
 
 export default function UserDashboard() {
   // --- State Management ---
@@ -19,6 +20,7 @@ export default function UserDashboard() {
 
   const [editTarget, setEditTarget] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const router = useRouter();
 
   // --- Handlers ---
   const handleDelete = () => {
@@ -43,7 +45,7 @@ export default function UserDashboard() {
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
             <p className="text-slate-500 font-medium">Manage and track your compliance data</p>
           </div>
-          <button className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-600 shadow-xl shadow-indigo-100 transition-all active:scale-95">
+          <button onClick={()=>router.push("/dashboard/create")} className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-600 shadow-xl shadow-indigo-100 transition-all active:scale-95">
             <Plus size={18} /> Create Invoice
           </button>
         </div>
