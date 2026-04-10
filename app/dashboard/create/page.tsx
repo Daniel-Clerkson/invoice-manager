@@ -1,193 +1,191 @@
 "use client"
 import React, { useState } from 'react';
 import { 
-  ChevronDown, 
-  ChevronUp, 
-  Save, 
-  Send, 
-  FileText, 
-  LayoutDashboard, 
-  Plus, 
-  LogOut 
+  ChevronDown, ChevronUp, Save, Send, Plus, Trash2, 
+  Building2, CreditCard, Receipt, Truck, Banknote, ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
-// --- Components ---
+// --- Reusable UI Components ---
 
-const AccordionSection = ({ 
-  number, 
-  title, 
-  description, 
-  children, 
-  isOpen, 
-  onToggle 
-}: { 
-  number: number; 
-  title: string; 
-  description: string; 
-  children: React.ReactNode; 
-  isOpen: boolean; 
-  onToggle: () => void;
-}) => {
-  return (
-    <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <button 
-        onClick={onToggle}
-        className="flex w-full items-center justify-between p-6 text-left transition-hover hover:bg-slate-50/50"
-      >
-        <div className="flex flex-col">
-          <h3 className="text-lg font-bold text-slate-900">{number}. {title}</h3>
-          <p className="text-sm text-slate-400">{description}</p>
-        </div>
-        {isOpen ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
-      </button>
-      
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
-            <div className="border-t border-slate-100 p-6 pt-2">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+const AccordionSection = ({ number, title, description, children, isOpen, onToggle }: any) => (
+  <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <button onClick={onToggle} className="flex w-full items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors">
+      <div className="flex flex-col">
+        <h3 className="text-lg font-bold text-slate-900">{number}. {title}</h3>
+        <p className="text-sm text-slate-400 font-medium">{description}</p>
+      </div>
+      {isOpen ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
+    </button>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+          <div className="border-t border-slate-100 p-8 pt-6">{children}</div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 
-const InputGroup = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
+const InputGroup = ({ label, required, children }: any) => (
   <div className="flex flex-col gap-2">
-    <label className="text-sm font-bold text-slate-700">
-      {label} {required && <span className="text-slate-400">*</span>}
+    <label className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+      {label} {required && <span className="text-rose-500">*</span>}
     </label>
     {children}
   </div>
 );
 
-// --- Main Page ---
-
 export default function CreateInvoice() {
   const [openSection, setOpenSection] = useState<number | null>(1);
+  const [lineItems, setLineItems] = useState([{ id: 1, desc: '', qty: 1, price: 0, tax: 7.5 }]);
 
-  const toggleSection = (id: number) => {
-    setOpenSection(openSection === id ? null : id);
-  };
-
-  const sections = [
-    { id: 1, title: "Basic Invoice Information", desc: "Essential invoice details and metadata" },
-    { id: 2, title: "Currency & Financial Info", desc: "Currency codes and financial references" },
-    { id: 3, title: "Delivery & References", desc: "Order references and document links" },
-    { id: 4, title: "Parties (Supplier & Customer)", desc: "Supplier and customer information" },
-    { id: 5, title: "Payment Means & Charges", desc: "Payment methods and allowances/charges" },
-    { id: 6, title: "Tax Information", desc: "Tax totals and subtotals" },
-    { id: 7, title: "Legal Monetary Total", desc: "Invoice totals and payable amount" },
-    { id: 8, title: "Invoice Line Items", desc: "Products or services being invoiced" },
-  ];
+  const addLineItem = () => setLineItems([...lineItems, { id: Date.now(), desc: '', qty: 1, price: 0, tax: 7.5 }]);
+  const removeLineItem = (id: number) => setLineItems(lineItems.filter(item => item.id !== id));
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-900">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar userRole="user" />
 
       <main className="mx-auto max-w-7xl p-6 lg:p-10">
-        {/* Header with Actions */}
         <div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Create Invoice</h1>
-            <p className="mt-1 text-slate-500">Fill in the invoice details below</p>
+            <h1 className="text-4xl font-black text-slate-900">Create Invoice</h1>
+            <p className="text-slate-500 font-medium mt-1">FIRS Compliance Gateway — 2026 Standards</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold shadow-sm hover:bg-slate-50 transition-all">
-              <Save size={18} /> Save Draft
-            </button>
-            <button className="flex items-center gap-2 rounded-lg bg-[#0F172A] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 transition-all">
-              <Send size={18} /> Submit Invoice
-            </button>
+            <button className="form-btn-secondary"><Save size={18} /> Save Draft</button>
+            <button className="form-btn-primary"><Send size={18} /> Submit Invoice</button>
           </div>
         </div>
 
-        {/* Form Sections */}
-        <div className="mx-auto max-w-6xl">
-          <AccordionSection 
-            number={1} 
-            title={sections[0].title} 
-            description={sections[0].desc}
-            isOpen={openSection === 1}
-            onToggle={() => toggleSection(1)}
-          >
-            <div className="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2">
-              <InputGroup label="Business ID" required>
-                <input type="text" placeholder="UUID format" className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all" />
-              </InputGroup>
-              <InputGroup label="IRN (Invoice Reference Number)" required>
-                <input type="text" defaultValue="IRN-1775834878724" className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all" />
-              </InputGroup>
-              <InputGroup label="Issue Date" required>
-                <input type="date" defaultValue="2026-04-10" className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all" />
-              </InputGroup>
-              <InputGroup label="Due Date">
-                <input type="date" className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all" />
-              </InputGroup>
-              <InputGroup label="Issue Time">
-                <input type="time" className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all" />
-              </InputGroup>
-              <InputGroup label="Invoice Type Code" required>
-                <select className="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all">
-                  <option>Select Code</option>
-                </select>
+        <div className="mx-auto max-w-5xl">
+          
+          {/* 1. Basic Invoice Information */}
+          <AccordionSection number={1} title="Basic Invoice Information" description="Essential invoice details and metadata" isOpen={openSection === 1} onToggle={() => setOpenSection(1)}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputGroup label="IRN" required><input type="text" defaultValue="IRN-1775834878724" className="form-input-custom" disabled /></InputGroup>
+              <InputGroup label="Issue Date" required><input type="date" className="form-input-custom" /></InputGroup>
+              <InputGroup label="Invoice Type" required>
+                <select className="form-input-custom"><option>Standard Invoice (388)</option><option>Credit Note (381)</option></select>
               </InputGroup>
               <InputGroup label="Invoice Kind" required>
-                <select className="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all">
-                  <option>B2B (Business to Business)</option>
-                  <option>B2C (Business to Consumer)</option>
-                </select>
+                <select className="form-input-custom"><option>B2B (Business to Business)</option><option>B2C (Business to Consumer)</option></select>
               </InputGroup>
-              <InputGroup label="Payment Status">
-                <select className="w-full appearance-none rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all">
-                  <option>Pending</option>
-                  <option>Paid</option>
-                </select>
-              </InputGroup>
-              <div className="md:col-span-2">
-                <InputGroup label="Note (Encrypted before submission)">
-                  <textarea 
-                    rows={4} 
-                    placeholder="Additional notes..." 
-                    className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 outline-none focus:border-indigo-500 focus:bg-white transition-all resize-none"
-                  />
-                </InputGroup>
+            </div>
+          </AccordionSection>
+
+          {/* 2. Currency & Financial Info */}
+          <AccordionSection number={2} title="Currency & Financial Info" description="Currency codes and financial references" isOpen={openSection === 2} onToggle={() => setOpenSection(2)}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputGroup label="Document Currency" required><select className="form-input-custom"><option>NGN (Nigerian Naira)</option></select></InputGroup>
+              <InputGroup label="Tax Currency" required><select className="form-input-custom"><option>NGN (Nigerian Naira)</option></select></InputGroup>
+              <InputGroup label="Accounting Cost"><input type="number" className="form-input-custom" placeholder="0" /></InputGroup>
+              <InputGroup label="Buyer Reference"><input type="text" className="form-input-custom" placeholder="REF-001" /></InputGroup>
+            </div>
+          </AccordionSection>
+
+          {/* 3. Delivery & References */}
+          <AccordionSection number={3} title="Delivery & References" description="Order references and document links" isOpen={openSection === 3} onToggle={() => setOpenSection(3)}>
+            <div className="grid grid-cols-1 gap-6">
+              <InputGroup label="Order Reference"><input type="text" className="form-input-custom" /></InputGroup>
+              <div className="flex justify-between p-4 bg-slate-50 rounded-xl">
+                <span className="text-xs font-bold text-slate-500 uppercase">Billing References</span>
+                <button className="text-xs font-bold text-indigo-600">+ Add Reference</button>
               </div>
             </div>
           </AccordionSection>
 
-          {/* Render remaining collapsed sections */}
-          {sections.slice(1).map((section) => (
-            <AccordionSection
-              key={section.id}
-              number={section.id}
-              title={section.title}
-              description={section.desc}
-              isOpen={openSection === section.id}
-              onToggle={() => toggleSection(section.id)}
-            >
-              <div className="py-10 text-center text-slate-400">
-                Form fields for {section.title.toLowerCase()}...
+          {/* 4. Parties (Supplier & Customer) */}
+          <AccordionSection number={4} title="Parties (Supplier & Customer)" description="Mandatory identity and contact details" isOpen={openSection === 4} onToggle={() => setOpenSection(4)}>
+            <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100 mb-6">
+              <h4 className="flex items-center gap-2 font-bold text-slate-900 mb-4 text-sm"><Building2 size={14}/> Supplier Details</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <InputGroup label="Name" required><input type="text" className="form-input-custom" /></InputGroup>
+                <InputGroup label="TIN" required><input type="text" className="form-input-custom" /></InputGroup>
               </div>
-            </AccordionSection>
-          ))}
+            </div>
+            <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100">
+              <h4 className="flex items-center gap-2 font-bold text-slate-900 mb-4 text-sm"><Building2 size={14}/> Customer Details</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <InputGroup label="Name" required><input type="text" className="form-input-custom" /></InputGroup>
+                <InputGroup label="TIN"><input type="text" className="form-input-custom" /></InputGroup>
+              </div>
+            </div>
+          </AccordionSection>
 
-          {/* Sticky Footer Actions for Mobile */}
-          <div className="mt-8 flex justify-end gap-3 sm:hidden">
-            <button className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold">Save</button>
-            <button className="flex-1 rounded-lg bg-[#0F172A] px-4 py-3 text-sm font-bold text-white">Submit</button>
-          </div>
+          {/* 5. Payment Means & Charges */}
+          <AccordionSection number={5} title="Payment Means & Charges" description="Payment methods and allowances/charges" isOpen={openSection === 5} onToggle={() => setOpenSection(5)}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputGroup label="Payment Means" required>
+                <select className="form-input-custom">
+                  <option>Bank Transfer</option>
+                  <option>Credit Card</option>
+                  <option>Cash</option>
+                </select>
+              </InputGroup>
+              <InputGroup label="Allowance / Charge">
+                <div className="flex gap-2">
+                  <input type="number" placeholder="0.00" className="form-input-custom" />
+                  <button className="bg-slate-900 text-white px-4 rounded-xl font-bold">+</button>
+                </div>
+              </InputGroup>
+            </div>
+          </AccordionSection>
+
+          {/* 6. Tax Information */}
+          <AccordionSection number={6} title="Tax Information" description="Tax totals and subtotals" isOpen={openSection === 6} onToggle={() => setOpenSection(6)}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <InputGroup label="Taxable Amt"><input type="number" className="form-input-custom" /></InputGroup>
+              <InputGroup label="Tax Amt"><input type="number" className="form-input-custom" /></InputGroup>
+              <InputGroup label="Cat ID"><input type="text" defaultValue="S" className="form-input-custom" /></InputGroup>
+              <InputGroup label="Percent (%)"><input type="number" defaultValue={7.5} className="form-input-custom" /></InputGroup>
+            </div>
+          </AccordionSection>
+
+          {/* 7. Legal Monetary Total */}
+          <AccordionSection number={7} title="Legal Monetary Total" description="Invoice totals and payable amount" isOpen={openSection === 7} onToggle={() => setOpenSection(7)}>
+            <div className="grid grid-cols-2 gap-6 p-6 bg-slate-900 rounded-3xl text-white">
+              <InputGroup label="Line Extension"><div className="text-xl font-bold">₦ 0.00</div></InputGroup>
+              <InputGroup label="Payable Amount"><div className="text-3xl font-black text-indigo-400">₦ 0.00</div></InputGroup>
+            </div>
+          </AccordionSection>
+
+          {/* 8. Invoice Line Items */}
+          <AccordionSection number={8} title="Invoice Line Items" description="Products or services being invoiced" isOpen={openSection === 8} onToggle={() => setOpenSection(8)}>
+            <div className="space-y-4">
+              {lineItems.map((item) => (
+                <div key={item.id} className="p-6 border border-slate-100 rounded-2xl grid grid-cols-1 md:grid-cols-4 gap-4 relative group">
+                   <div className="md:col-span-2"><InputGroup label="Desc" required><input type="text" className="form-input-custom" /></InputGroup></div>
+                   <InputGroup label="Qty" required><input type="number" className="form-input-custom" /></InputGroup>
+                   <InputGroup label="Price" required><input type="number" className="form-input-custom" /></InputGroup>
+                   <button onClick={() => removeLineItem(item.id)} className="absolute -top-2 -right-2 bg-rose-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12}/></button>
+                </div>
+              ))}
+              <button onClick={addLineItem} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl font-bold text-slate-400 hover:text-indigo-600 transition-all">+ Add Item</button>
+            </div>
+          </AccordionSection>
+
         </div>
       </main>
+
+      <style jsx global>{`
+        .form-input-custom {
+          width: 100%; height: 3.25rem; background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: 1rem;
+          padding: 0 1.25rem; font-size: 0.875rem; font-weight: 600; color: #1E293B; outline: none; transition: all 0.2s;
+        }
+        .form-input-custom:focus { background: white; border-color: #6366F1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05); }
+        .form-btn-primary {
+          display: flex; align-items: center; gap: 0.5rem; background: #0F172A; color: white; padding: 0.75rem 1.5rem;
+          border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; transition: all 0.2s;
+        }
+        .form-btn-primary:hover { background: #4F46E5; transform: translateY(-1px); }
+        .form-btn-secondary {
+          display: flex; align-items: center; gap: 0.5rem; background: white; color: #475569; padding: 0.75rem 1.5rem;
+          border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; border: 1px solid #E2E8F0; transition: all 0.2s;
+        }
+      `}</style>
     </div>
   );
 }
