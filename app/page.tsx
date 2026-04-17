@@ -1,194 +1,97 @@
-"use client";
+"use client"
+import React from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowRight, CheckCircle2, FileText, Users, Zap, ShieldCheck } from 'lucide-react';
+import HomeNavbar from '@/components/HomeNavbar';
+import Features from "@/components/Features"
+import How from "@/components/How"
+import Faq from '@/components/FAQ';
+import WhyChooseUs from '@/components/Why';
+import Footer from '@/components/Footer';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-
-type Role = "user" | "admin" | "sadmin";
-
-const MOCK_USERS = [
-  { email: "user@business.com", password: "user123", role: "user" as Role, name: "John User" },
-  { email: "admin@business.com", password: "admin123", role: "admin" as Role, name: "Jane Admin" },
-  { email: "sadmin@business.com", password: "super123", role: "sadmin" as Role, name: "Boss Super" },
-];
-
-const QUICK_CREDS: Record<Role, { email: string; password: string }> = {
-  user: { email: "user@business.com", password: "user123" },
-  admin: { email: "admin@business.com", password: "admin123" },
-  sadmin: { email: "sadmin@business.com", password: "super123" },
-};
-
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "" }>({
-    message: "",
-    type: "",
-  });
-
-  const showToast = (message: string, type: "success" | "error") => {
-    setToast({ message, type });
-    setTimeout(() => setToast({ message: "", type: "" }), 2500);
-  };
-
-  const handleSignIn = async (overrideEmail?: string, overridePassword?: string) => {
-    const resolvedEmail = overrideEmail ?? email;
-    const resolvedPassword = overridePassword ?? password;
-
-    setError("");
-    if (!resolvedEmail || !resolvedPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    
-    const user = MOCK_USERS.find((u) => u.email === resolvedEmail && u.password === resolvedPassword);
-
-    if (user) {
-      showToast(`Welcome back, ${user.name}!`, "success");
-      setTimeout(() => {
-        if (user.role === "admin") {
-          router.push("/admin/dashboard");
-        }
-        else if(user.role === "sadmin"){
-          router.push("/sadmin/dashboard")
-        }
-         else {
-          router.push("/dashboard");
-        }
-      }, 1000);
-    } else {
-      setLoading(false);
-      setError("Invalid email or password.");
-      showToast("Login failed", "error");
-    }
-  };
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#F1F3F9] flex flex-col items-center justify-center px-4 py-8 font-sans">
-      {/* Toast Notification */}
-      {toast.message && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl text-white text-sm font-bold shadow-xl ${
-            toast.type === "success" ? "bg-emerald-600" : "bg-rose-500"
-          }`}
+    <div className="min-h-screen bg-white selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden pt-24">
+      <div className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none" 
+           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 19V15h2v4h4v2h-4v4h-2v-4h-4v-2h4z' fill='%23000000' fill-rule='evenodd'/%3E%3C/svg%3E")` }} 
+      />
+
+      <HomeNavbar />
+
+      <main className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-10 md:pt-16 pb-20 text-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 md:px-3.5 md:py-1.5 text-emerald-700 border border-emerald-100"
         >
-          {toast.message}
+          <CheckCircle2 size={12} className="md:w-3.5 md:h-3.5" strokeWidth={2.5} />
+          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">FIRS Certified & Compliant</span>
         </motion.div>
-      )}
 
-      {/* Main Container - Adjusted for mobile centering */}
-      <div className="flex items-center justify-center w-full max-w-6xl lg:gap-20">
-        
-        {/* Left Panel - Branding (Hidden on mobile/tablet) */}
-        <div className="flex-1 hidden lg:block">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="8" height="10" rx="2" fill="white" opacity="0.9" />
-                <rect x="13" y="3" width="8" height="6" rx="2" fill="white" opacity="0.5" />
-                <rect x="13" y="11" width="8" height="10" rx="2" fill="white" opacity="0.7" />
-                <rect x="3" y="15" width="8" height="6" rx="2" fill="white" opacity="0.6" />
-              </svg>
-            </div>
-            <span className="text-2xl font-black text-slate-900 tracking-tight">Invoice Manager</span>
-          </div>
+        <motion.h1 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.1] md:leading-tight"
+        >
+          Effortless Invoice <br className="hidden sm:block" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
+            Management & Compliance
+          </span>
+        </motion.h1>
 
-          <h2 className="text-4xl font-black text-slate-900 leading-tight mb-4">
-            Simplify your <span className="text-indigo-600">Compliance</span> workflow.
-          </h2>
-          <p className="text-slate-500 text-lg leading-relaxed max-w-md mb-10">
-            Automated invoice creation, real-time admin review, and FIRS-compliant submission tools.
-          </p>
-        </div>
+        <motion.p 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mx-auto mt-4 md:mt-6 max-w-xs sm:max-w-md md:max-w-xl text-sm md:text-lg font-medium text-slate-500 leading-relaxed"
+        >
+          Streamline your tax invoice workflow with our comprehensive multi-role system. 
+          Create, review, and approve FIRS-compliant invoices with confidence.
+        </motion.p>
 
-        {/* Right Panel - Login Card (Centered and Responsive) */}
-        <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-10 w-full max-w-[440px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100">
-          
-          {/* Logo visible only on mobile/tablet */}
-          <div className="flex lg:hidden items-center justify-center gap-2 mb-8">
-             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-black">IM</span>
-            </div>
-            <span className="text-xl font-black text-slate-900">Invoice Manager</span>
-          </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0"
+        >
+          <Link href="/dashboard" className="group flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#10B981] px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all active:scale-95">
+            Start Managing Invoices
+            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link href="/features" className="w-full sm:w-auto rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+            Explore Features
+          </Link>
+        </motion.div>
 
-          <div className="mb-8 text-center sm:text-left">
-            <h3 className="text-2xl font-black text-slate-900">Sign In</h3>
-            <p className="text-slate-400 text-sm mt-1">Enter your details to access your portal</p>
-          </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-16 md:mt-20 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
+        >
+          <FeatureMini icon={<ShieldCheck size={18}/>} label="100%" sub="FIRS Compliant" />
+          <FeatureMini icon={<FileText size={18}/>} label="8" sub="Form Sections" />
+          <FeatureMini icon={<Users size={18}/>} label="3" sub="Role Levels" />
+          <FeatureMini icon={<Zap size={18}/>} label="Auto" sub="Calculations" />
+        </motion.div>
+      </main>
+      <Features />
+      <How />
+      <WhyChooseUs />
+      <Faq />
+      <Footer />
+    </div>
+  );
+}
 
-          <div className="space-y-4 sm:space-y-5">
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                className={`w-full h-12 border-2 rounded-xl bg-slate-50 px-4 text-sm font-medium outline-none transition-all focus:border-indigo-600 focus:bg-white ${
-                  error ? "border-rose-400" : "border-slate-50"
-                }`}
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                onKeyDown={(e) => e.key === "Enter" && handleSignIn()}
-                className={`w-full h-12 border-2 rounded-xl bg-slate-50 px-4 text-sm font-medium outline-none transition-all focus:border-indigo-600 focus:bg-white ${
-                  error ? "border-rose-400" : "border-slate-50"
-                }`}
-              />
-            </div>
-          </div>
-
-          {error && <p className="text-xs font-bold text-rose-500 mt-3 text-center sm:text-left">{error}</p>}
-
-          <button
-            onClick={() => handleSignIn()}
-            disabled={loading}
-            className="w-full h-12 bg-slate-900 text-white rounded-xl text-sm font-bold mt-8 transition-all hover:bg-indigo-600 active:scale-95 disabled:opacity-50 shadow-lg shadow-slate-200"
-          >
-            {loading ? "Authenticating..." : "Sign In to Dashboard"}
-          </button>
-
-          <div className="mt-8 sm:mt-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-slate-100" />
-              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Test Access</span>
-              <div className="flex-1 h-px bg-slate-100" />
-            </div>
-            
-            <div className="grid grid-cols-3 gap-2">
-              {(["user", "admin", "sadmin"] as Role[]).map((role) => (
-                <button
-                  key={role}
-                  onClick={() => {
-                    setEmail(QUICK_CREDS[role].email);
-                    setPassword(QUICK_CREDS[role].password);
-                    handleSignIn(QUICK_CREDS[role].email, QUICK_CREDS[role].password);
-                  }}
-                  className="py-2.5 border border-slate-100 rounded-lg text-[9px] font-black uppercase text-slate-500 hover:border-indigo-600 hover:text-indigo-600 transition-all bg-white"
-                >
-                  {role === "sadmin" ? "S. Admin" : role}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+function FeatureMini({ icon, label, sub }: { icon: React.ReactNode, label: string, sub: string }) {
+  return (
+    <div className="rounded-xl md:rounded-2xl border border-slate-100 bg-white/50 p-4 md:p-6 backdrop-blur-sm hover:border-indigo-100 transition-colors">
+      <div className="mb-2 md:mb-3 flex justify-center text-indigo-500">{icon}</div>
+      <h4 className="text-lg md:text-xl font-black text-slate-900">{label}</h4>
+      <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400">{sub}</p>
     </div>
   );
 }

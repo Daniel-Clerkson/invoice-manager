@@ -224,7 +224,7 @@ export default function AdminDashboard() {
                 <div className="mt-8 flex items-center justify-center gap-2 px-4 py-2 bg-slate-50 rounded-full w-fit mx-auto">
                     <AlertCircle size={12} className="text-slate-400" />
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-                        Verified by Daniel Polycarp
+                        Verified by Daniel
                     </p>
                 </div>
               </div>
