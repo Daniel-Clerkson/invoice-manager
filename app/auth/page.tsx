@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 type Role = "user" | "admin" | "sadmin";
 
@@ -36,46 +37,46 @@ export default function LoginPage() {
     setTimeout(() => setToast({ message: "", type: "" }), 2500);
   };
 
-  const handleAuth = async (overrideEmail?: string, overridePassword?: string) => {
-    const resolvedEmail = overrideEmail ?? email;
-    const resolvedPassword = overridePassword ?? password;
+const handleAuth = async (overrideEmail?: string, overridePassword?: string) => {
+  const emailVal = overrideEmail ?? email;
+  const passwordVal = overridePassword ?? password;
 
-    setError("");
-    
-    if (mode === "signup" && !name) {
-        setError("Please enter your name.");
-        return;
+  setError("");
+  if (!emailVal || !passwordVal) {
+    setError("Please fill in all fields.");
+    return;
+  }
+
+  setLoading(true);
+
+  if (mode === "signup") {
+    const { error } = await supabase.auth.signUp({
+      email: emailVal,
+      password: passwordVal,
+      options: { data: { name: name } }
+    });
+    if (error) {
+      setError(error.message);
+      showToast("Signup failed", "error");
+    } else {        
+      showToast("Account created! Login to your account.", "success");
     }
-    if (!resolvedEmail || !resolvedPassword) {
-      setError("Please fill in all fields.");
-      return;
-    }
+  } else {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailVal,
+      password: passwordVal,
+    });
 
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-
-    if (mode === "signup") {
-        showToast("Account created successfully!", "success");
-        setTimeout(() => setMode("signin"), 1000);
-        setLoading(false);
-        return;
-    }
-    
-    const user = MOCK_USERS.find((u) => u.email === resolvedEmail && u.password === resolvedPassword);
-
-    if (user) {
-      showToast(`Welcome back, ${user.name}!`, "success");
-      setTimeout(() => {
-        if (user.role === "admin") router.push("/admin/dashboard");
-        else if(user.role === "sadmin") router.push("/sadmin/dashboard");
-        else router.push("/dashboard");
-      }, 1000);
-    } else {
-      setLoading(false);
+    if (error) {
       setError("Invalid email or password.");
       showToast("Login failed", "error");
+    } else {
+      showToast("Welcome back!", "success");
+      router.push("/dashboard");
     }
-  };
+  }
+  setLoading(false);
+};
 
   return (
     <div className="min-h-screen bg-[#F1F3F9] flex flex-col items-center justify-center px-4 py-8 font-sans">
