@@ -35,11 +35,17 @@ export default function Navbar({
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
-    window.location.reload();
+    try {
+      await Promise.race([
+        fetch("/api/auth/logout", { method: "POST" }),
+        new Promise((_, reject) => setTimeout(() => reject("timeout"), 5000)),
+      ]);
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      window.location.href = "/";
+    }
   };
-
   const getNavLinks = () => {
     switch (userRole) {
       case "sadmin":
