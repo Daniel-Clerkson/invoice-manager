@@ -31,8 +31,10 @@ export default function Navbar({
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setLoggingOut(true);
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
   };
@@ -176,9 +178,10 @@ export default function Navbar({
 
           <button
             onClick={handleLogout}
-            className="hidden md:flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all"
+            disabled={loggingOut}
+            className="hidden md:flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all disabled:opacity-50"
           >
-            <LogOut size={16} /> Logout
+            <LogOut size={16} /> {loggingOut ? "Logging out..." : "Logout"}
           </button>
 
           <button
@@ -218,10 +221,11 @@ export default function Navbar({
                 </button>
               ))}
               <button
-                onClick={() => router.push("/")}
-                className="flex items-center gap-4 rounded-xl px-4 py-4 text-base font-black bg-rose-50 text-rose-600"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="flex items-center gap-4 rounded-xl px-4 py-4 text-base font-black bg-rose-50 text-rose-600 disabled:opacity-50"
               >
-                <LogOut size={20} /> Logout
+                <LogOut size={20} /> {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>
           </motion.div>
