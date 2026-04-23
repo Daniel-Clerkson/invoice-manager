@@ -19,13 +19,23 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   userRole: "user" | "admin" | "sadmin";
+  username: string;
   onOpenReview?: () => void;
 }
 
-export default function Navbar({ userRole, onOpenReview }: NavbarProps) {
+export default function Navbar({
+  userRole,
+  onOpenReview,
+  username,
+}: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+  };
 
   const getNavLinks = () => {
     switch (userRole) {
@@ -42,7 +52,7 @@ export default function Navbar({ userRole, onOpenReview }: NavbarProps) {
             href: "/sadmin/users",
             icon: Users,
             type: "link",
-          }, 
+          },
           {
             name: "Review Queue",
             onClick: onOpenReview,
@@ -103,13 +113,24 @@ export default function Navbar({ userRole, onOpenReview }: NavbarProps) {
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md px-6 py-3">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href={getHomeHref()} className="flex items-center gap-2 group">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white group-hover:rotate-6 transition-transform">
-              <FileText size={18} />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg transition-colors duration-300 group-hover:bg-[#10B981]">
+              <ShieldCheck size={20} className="sm:hidden" strokeWidth={2.5} />
+              <ShieldCheck
+                size={22}
+                className="hidden sm:block"
+                strokeWidth={2.5}
+              />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900">
-              Invoice Manager
-            </span>
+
+            <div className="block">
+              <h1 className="text-sm sm:text-base font-black leading-tight text-slate-900 tracking-tight">
+                Invoice Manager
+              </h1>
+              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                FIRS Compliance
+              </p>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -149,12 +170,12 @@ export default function Navbar({ userRole, onOpenReview }: NavbarProps) {
               {userRole === "sadmin" ? "System Root" : userRole}
             </p>
             <p className="text-sm font-bold text-slate-700 leading-none">
-              {userRole}
+              {username}
             </p>
           </div>
 
           <button
-            onClick={() => router.push("/")}
+            onClick={handleLogout}
             className="hidden md:flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all"
           >
             <LogOut size={16} /> Logout

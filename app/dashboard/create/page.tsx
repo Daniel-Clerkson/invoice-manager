@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -72,6 +72,8 @@ const InputGroup = ({ label, required, children }: any) => (
 
 export default function CreateInvoice() {
   const [loading, setLoading] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false); // add this
+  const router = useRouter();
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "";
@@ -87,7 +89,20 @@ export default function CreateInvoice() {
     supplier_name: "",
     invoice_type: "Standard Invoice (388)",
   });
-  const router = useRouter();
+
+  useEffect(() => {
+    async function checkAuth() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/auth");
+      } else {
+        setAuthChecked(true);
+      }
+    }
+    checkAuth();
+  }, [router]);
 
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type });
@@ -100,15 +115,15 @@ export default function CreateInvoice() {
   };
 
   const handleInputChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-) => {
-  const { name, value } = e.target;
-  
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value, // This works for <input> and <select>
-  }));
-};
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value, // This works for <input> and <select>
+    }));
+  };
 
   const addLineItem = () =>
     setLineItems([
@@ -143,7 +158,7 @@ export default function CreateInvoice() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-      credentials: "include"
+      credentials: "include",
     });
 
     try {
@@ -162,9 +177,15 @@ export default function CreateInvoice() {
     setLoading(false);
   };
 
+  if (!authChecked) return (
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <p className="font-bold text-slate-400">Loading...</p>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="user" />
+      <Navbar userRole="user" username="User" />
       {/* Toast Notification */}
       <AnimatePresence>
         {toast.message && (
@@ -234,6 +255,7 @@ export default function CreateInvoice() {
               </InputGroup>
               <InputGroup label="Invoice Type" required>
                 <select
+                  name="invoice_type"
                   className="form-input-custom"
                   onChange={handleInputChange}
                 >
@@ -334,7 +356,7 @@ export default function CreateInvoice() {
                 <div className="grid grid-cols-2 gap-4">
                   <InputGroup label="Name" required>
                     <input
-                    name="supplier_name"
+                      name="supplier_name"
                       type="text"
                       className="form-input-custom"
                       value={formData.supplier_name}

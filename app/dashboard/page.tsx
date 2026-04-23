@@ -21,10 +21,12 @@ import { supabase } from "@/lib/supabase";
 
 export default function UserDashboard() {
   const [invoices, setInvoices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [editTarget, setEditTarget] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [username, setUsername] = useState("Loading...");
 
   const router = useRouter();
 
@@ -39,15 +41,17 @@ export default function UserDashboard() {
         return;
       }
 
-      const { data, error } = await supabase
+      // Fetch both Invoices AND the User Profile concurrently
+      const [invoicesRes, profileRes] = await Promise.all([
+        supabase.from("invoices").select("*").eq("user_id", user.id),
+        supabase.from("profiles").select("username").eq("id", user.id).single(),
+      ]);
 
-        .from("invoices")
+      if (invoicesRes.data) setInvoices(invoicesRes.data);
 
-        .select("*")
-
-        .eq("user_id", user.id);
-
-      if (data) setInvoices(data);
+      console.log(invoicesRes.data);
+      // Set the username from profileRes
+      setUsername(profileRes.data?.username || "User");
 
       setLoading(false);
     }
@@ -57,6 +61,7 @@ export default function UserDashboard() {
 
   const handleDelete = async () => {
     // Call your new DELETE API route
+    setDeleting(true)
     const res = await fetch("/api/invoices/delete", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -70,6 +75,7 @@ export default function UserDashboard() {
     } else {
       console.error("Failed to delete invoice");
     }
+    setDeleting(false)
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -83,7 +89,11 @@ export default function UserDashboard() {
       credentials: "include", // Required to send the auth cookie
       body: JSON.stringify({
         id: editTarget.id,
-        updateData: editTarget, // Assuming your API expects an updateData object
+        updateData: {
+          status: editTarget.status,
+          total_amount: editTarget.total_amount,
+          firs_payload: editTarget.firs_payload,
+        },
       }),
     });
 
@@ -101,7 +111,7 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="user" />
+      <Navbar userRole="user" username={username} />
 
       <main className="mx-auto max-w-7xl p-4 md:p-10">
         <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -129,72 +139,72 @@ export default function UserDashboard() {
           </div>
         ) : (
           <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <table className="w-full text-left text-sm min-w-[800px]">
-              <thead className="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                <tr>
-                  <th className="px-8 py-5">Invoice ID & IRN</th>
-
-                  <th className="px-8 py-5">Date</th>
-
-                  <th className="px-8 py-5">Amount</th>
-
-                  <th className="px-8 py-5">Status</th>
-
-                  <th className="px-8 py-5 text-right">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-slate-50">
-                {invoices.map((inv) => (
-                  <tr
-                    key={inv.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
-                    <td className="px-8 py-5">
-                      <p className="font-bold text-slate-800">INV-00{inv.id}</p>
-
-                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                        {inv.irn}
-                      </p>
-                    </td>
-
-                    <td className="px-8 py-5 text-slate-500 font-medium">
-                      {inv.firs_payload.issue_date}
-                    </td>
-
-                    <td className="px-8 py-5 font-black text-slate-900">
-                      ₦{inv.total_amount?.toLocaleString()}
-                    </td>
-
-                    <td className="px-8 py-5">
-                      <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${inv.status === "approved" ? "bg-emerald-50 text-emerald-600" : "bg-slate-900 text-white"}`}
-                      >
-                        Submitted
-                      </span>
-                    </td>
-
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => setEditTarget(inv)}
-                          className="p-2 text-slate-400 hover:text-indigo-600"
-                        >
-                          <Edit3 size={16} />
-                        </button>
-
-                        <button
-                          onClick={() => setDeleteTarget(inv)}
-                          className="p-2 text-slate-400 hover:text-rose-600"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+            {/* The overflow-x-auto allows the table to scroll horizontally on small screens */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                  <tr>
+                    {/* Use dynamic padding: px-4 on mobile, px-8 on desktop */}
+                    <th className="px-4 py-5 md:px-8">Invoice ID & IRN</th>
+                    <th className="px-4 py-5 md:px-8">Date</th>
+                    <th className="px-4 py-5 md:px-8">Amount</th>
+                    <th className="px-4 py-5 md:px-8">Status</th>
+                    <th className="px-4 py-5 md:px-8 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody className="divide-y divide-slate-50">
+                  {invoices.map((inv) => (
+                    <tr
+                      key={inv.id}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="px-4 py-5 md:px-8">
+                        <p className="font-bold text-slate-800">
+                          INV-00{inv.id}
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-mono mt-0.5 truncate max-w-[100px]">
+                          {inv.irn}
+                        </p>
+                      </td>
+                      <td className="px-4 py-5 md:px-8 text-slate-500 font-medium whitespace-nowrap">
+                        {inv.firs_payload.issue_date}
+                      </td>
+                      <td className="px-4 py-5 md:px-8 font-black text-slate-900 whitespace-nowrap">
+                        ₦{inv.total_amount?.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-5 md:px-8">
+                        <span
+                          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase whitespace-nowrap ${
+                            inv.status === "approved"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : "bg-slate-900 text-white"
+                          }`}
+                        >
+                          {inv.status || "Submitted"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-5 md:px-8 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setEditTarget(inv)}
+                            className="p-2 text-slate-400 hover:text-indigo-600"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(inv)}
+                            className="p-2 text-slate-400 hover:text-rose-600"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </main>
@@ -242,9 +252,15 @@ export default function UserDashboard() {
                     </label>
                     <input
                       type="date"
-                      value={editTarget?.date || ""} // Add || ""
+                      value={editTarget?.firs_payload?.issue_date || ""}
                       onChange={(e) =>
-                        setEditTarget({ ...editTarget, date: e.target.value })
+                        setEditTarget({
+                          ...editTarget,
+                          firs_payload: {
+                            ...editTarget.firs_payload,
+                            issue_date: e.target.value,
+                          },
+                        })
                       }
                       className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-4 font-bold outline-none focus:ring-4 ring-indigo-500/5 transition-all"
                     />
@@ -255,11 +271,11 @@ export default function UserDashboard() {
                     </label>
                     <input
                       type="number"
-                      value={editTarget?.amount || ""} // Add || ""
+                      value={editTarget?.total_amount || ""}
                       onChange={(e) =>
                         setEditTarget({
                           ...editTarget,
-                          amount: parseInt(e.target.value) || 0,
+                          total_amount: parseInt(e.target.value) || 0,
                         })
                       }
                       className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-4 font-bold outline-none focus:ring-4 ring-indigo-500/5 transition-all"
@@ -283,19 +299,20 @@ export default function UserDashboard() {
                     <option value="rejected">Rejected</option>
                   </select>
                 </div>
-                {updating == true ? (
+                {updating ? ( // If updating is true, show Loading
+                  <button
+                    disabled
+                    className="cursor-not-allowed w-full py-5 bg-slate-400 text-white rounded-2xl font-black text-sm mt-4 transition-all flex items-center justify-center gap-2"
+                  >
+                    Updating...
+                  </button>
+                ) : (
+                  // If updating is false, show the clickable button
                   <button
                     type="submit"
                     className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-sm mt-4 hover:bg-indigo-600 transition-all flex items-center justify-center gap-2"
                   >
                     <Save size={18} /> Update Invoice Record
-                  </button>
-                ) : (
-                  <button
-                    disabled
-                    className="cursor-not-allowed w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-sm mt-4 transition-all flex items-center justify-center gap-2"
-                  >
-                    Loading...
                   </button>
                 )}
               </form>
@@ -336,12 +353,22 @@ export default function UserDashboard() {
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 py-4 bg-rose-600 text-white font-bold rounded-2xl shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
-                >
-                  Delete
-                </button>
+                {deleting ? (
+                  <button
+                    disabled
+                    onClick={handleDelete}
+                    className="flex-1 py-4 bg-rose-900 text-white font-bold rounded-2xl shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
+                  >
+                    Deleting...
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleDelete}
+                    className="flex-1 py-4 bg-rose-600 text-white font-bold rounded-2xl shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>

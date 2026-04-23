@@ -1,29 +1,52 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  // 1. Get all cookies and find any that start with 'sb-'
-  // Supabase stores the auth session in a cookie with the project ID
-  const allCookies = request.cookies.getAll();
-  const hasSession = allCookies.some(cookie => cookie.name.startsWith('sb-'));
+  let response = NextResponse.next({
+    request: { headers: request.headers },
+  });
 
-  // 2. Define your protected paths
-  const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard');
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response = NextResponse.next({ request });
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
 
-  // 3. Logic: If trying to access dashboard without a session, redirect to login
-  if (isDashboardRoute && !hasSession) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // This is the key: getUser() actually validates the token with Supabase
+  await supabase.auth.getSession();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isDashboardRoute = request.nextUrl.pathname.startsWith("/dashboard");
+  const isAuthRoute = request.nextUrl.pathname === "/auth";
+
+  // Redirect to home if unauthenticated and trying to reach dashboard
+  if (isDashboardRoute && !user) {
+    return NextResponse.redirect(new URL("/auth", request.url));
   }
 
-  // 4. If logged in and trying to access the login page, redirect to dashboard
-  if (request.nextUrl.pathname === '/' && hasSession) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // Redirect to dashboard if logged in and trying to reach /auth
+  if (isAuthRoute && user) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
-// Ensure middleware only runs on necessary paths
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
