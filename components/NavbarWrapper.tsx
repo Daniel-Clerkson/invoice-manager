@@ -21,5 +21,5 @@ export default async function NavbarWrapper({ onOpenReview }: { onOpenReview?: (
 
   const userRole = profile?.role || 'user';
 
-  return <Navbar userRole={userRole} onOpenReview={onOpenReview} />;
+  return <Navbar username='user' userRole={userRole} onOpenReview={onOpenReview} />;
 }
