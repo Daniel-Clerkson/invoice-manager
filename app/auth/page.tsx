@@ -64,6 +64,9 @@ export default function LoginPage() {
       } else {
         showToast("Account created! Login to your account.", "success");
         router.push("/auth");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     } else {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -79,6 +82,9 @@ export default function LoginPage() {
         setMode("signin");
         setEmail("");
         setPassword("");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
         setTimeout(() => router.push("/dashboard"), 500);
       }
     }

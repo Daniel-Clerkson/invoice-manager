@@ -37,6 +37,7 @@ export default function Navbar({
     setLoggingOut(true);
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
+    window.location.reload();
   };
 
   const getNavLinks = () => {
