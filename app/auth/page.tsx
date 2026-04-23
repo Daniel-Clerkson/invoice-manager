@@ -79,7 +79,7 @@ export default function LoginPage() {
         setMode("signin");
         setEmail("");
         setPassword("");
-        router.push("/dashboard")
+        setTimeout(() => router.push("/dashboard"), 500);
       }
     }
     setLoading(false);
