@@ -28,7 +28,7 @@ export default function UserManagement() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="admin" />
+      <Navbar userRole="admin" username='admin' />
       <main className="mx-auto max-w-7xl p-4 md:p-10">
         
         {/* Header */}

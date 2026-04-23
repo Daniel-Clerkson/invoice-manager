@@ -19,7 +19,7 @@ export default function SuperAdminUsers() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="sadmin" />
+      <Navbar userRole="sadmin" username='sadmin' />
       
       <main className="mx-auto max-w-7xl p-6 lg:p-10">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">

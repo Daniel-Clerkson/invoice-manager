@@ -73,7 +73,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="admin" onOpenReview={handleOpenGeneralReview} />
+      <Navbar userRole="admin" onOpenReview={handleOpenGeneralReview} username='admin' />
       
       <main className="mx-auto max-w-7xl p-4 md:p-10">
         <header className="mb-10">

@@ -45,7 +45,7 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="sadmin" />
+      <Navbar userRole="sadmin" username='sadmin' />
       
       <main className="mx-auto max-w-7xl p-6 lg:p-10">
         <header className="mb-8">
