@@ -162,7 +162,7 @@ export default function LoginPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Daniel Polycarp"
+                    placeholder="Enter Name"
                     className="w-full h-12 border-2 border-slate-50 rounded-xl bg-slate-50 px-4 text-sm font-medium outline-none transition-all focus:border-indigo-600 focus:bg-white"
                   />
                 </motion.div>
