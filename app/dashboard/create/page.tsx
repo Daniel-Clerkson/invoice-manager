@@ -1,78 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  ChevronDown,
-  ChevronUp,
   Save,
   Send,
   Plus,
   Trash2,
-  Building2,
-  CreditCard,
-  Receipt,
-  Truck,
-  Banknote,
-  ShieldCheck,
-  MapPin,
+  Upload,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-
-// --- Reusable UI Components ---
-
-const AccordionSection = ({
-  number,
-  title,
-  description,
-  children,
-  isOpen,
-  onToggle,
-}: any) => (
-  <div className="mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <button
-      onClick={onToggle}
-      className="flex w-full items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors"
-    >
-      <div className="flex flex-col">
-        <h3 className="text-lg font-bold text-slate-900">
-          {number}. {title}
-        </h3>
-        <p className="text-sm text-slate-400 font-medium">{description}</p>
-      </div>
-      {isOpen ? (
-        <ChevronUp className="text-slate-400" />
-      ) : (
-        <ChevronDown className="text-slate-400" />
-      )}
-    </button>
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-        >
-          <div className="border-t border-slate-100 p-8 pt-6">{children}</div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-);
-
-const InputGroup = ({ label, required, children }: any) => (
-  <div className="flex flex-col gap-2">
-    <label className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-      {label} {required && <span className="text-rose-500">*</span>}
-    </label>
-    {children}
-  </div>
-);
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CreateInvoice() {
   const [loading, setLoading] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false); // add this
+  const [authChecked, setAuthChecked] = useState(false);
   const router = useRouter();
   const [toast, setToast] = useState<{
     message: string;
@@ -81,7 +23,6 @@ export default function CreateInvoice() {
     message: "",
     type: "",
   });
-  const [openSection, setOpenSection] = useState<number | null>(1);
   const [lineItems, setLineItems] = useState([
     { id: 1, desc: "", qty: 1, price: 0, tax: 7.5 },
   ]);
@@ -109,19 +50,13 @@ export default function CreateInvoice() {
     setTimeout(() => setToast({ message: "", type: "" }), 500);
   };
 
-  // Fixed Toggle Logic: Closes if already open
-  const handleToggle = (id: number) => {
-    setOpenSection((prev) => (prev === id ? null : id));
-  };
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
-      [name]: value, // This works for <input> and <select>
+      [name]: value,
     }));
   };
 
@@ -148,7 +83,7 @@ export default function CreateInvoice() {
     const payload = {
       irn: "IRN-" + Date.now(),
       issue_date: new Date().toISOString().split("T")[0],
-      invoice_type_code: "381", // Matches the FIRS schema example
+      invoice_type_code: "381",
       supplier_name: formData.supplier_name,
       total_amount: 50000,
       user_id: user.id,
@@ -184,8 +119,9 @@ export default function CreateInvoice() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#FDFDFD] text-[#1E293B]">
       <Navbar userRole="user" username="User" />
+      
       {/* Toast Notification */}
       <AnimatePresence>
         {toast.message && (
@@ -194,405 +130,360 @@ export default function CreateInvoice() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl text-white text-sm font-bold shadow-xl ${
-              toast.type === "success" ? "bg-emerald-600" : "bg-rose-500"
+              toast.type === "success" ? "bg-[#10B981]" : "bg-rose-500"
             }`}
           >
             {toast.message}
           </motion.div>
         )}
       </AnimatePresence>
-      <main className="mx-auto max-w-7xl p-6 lg:p-10">
-        <div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-4xl font-black text-slate-900">
-              Create Invoice
-            </h1>
-            <p className="text-slate-500 font-medium mt-1">
-              FIRS Compliance Gateway — 2026 Standards
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {loading ? (
-              <button
-                className="form-btn-primary cursor-not-allowed"
-                disabled={true}
-              >
-                {" "}
-                Submitting...{" "}
-              </button>
-            ) : (
-              <button
-                onClick={submitInvoice}
-                className="form-btn-primary cursor-pointer"
-              >
-                <Send size={18} /> Submit Invoice
-              </button>
-            )}
-          </div>
-        </div>
 
-        <div className="mx-auto max-w-5xl">
-          {/* 1. Basic Invoice Information */}
-          <AccordionSection
-            number={1}
-            title="Basic Invoice Information"
-            description="Essential invoice details"
-            isOpen={openSection === 1}
-            onToggle={() => handleToggle(1)}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputGroup label="IRN" required>
-                <input
-                  name="invoice_type"
-                  type="text"
-                  defaultValue={`IRN-${Date.now()}`}
-                  className="form-input-custom"
-                  disabled
-                />
-              </InputGroup>
-              <InputGroup label="Issue Date" required>
-                <input type="date" className="form-input-custom" />
-              </InputGroup>
-              <InputGroup label="Invoice Type" required>
-                <select
-                  name="invoice_type"
-                  className="form-input-custom"
+      {/* Sub-Header Navigation */}
+      <div className="border-b border-slate-100 bg-white px-8 py-4 flex items-center gap-3">
+        <span className="text-slate-400 font-medium cursor-pointer" onClick={() => router.back()}>←</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-slate-800">InvoiceMe</span>
+          <span className="text-xs font-medium text-slate-400">Official Supplier Portal</span>
+        </div>
+      </div>
+
+      <main className="max-w-[1200px] mx-auto p-8">
+        <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
+          
+          <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
+            <h1 className="text-xl font-bold text-slate-900">Generate an Invoice to Customer</h1>
+            <button className="text-slate-400 hover:text-slate-600 text-lg">×</button>
+          </div>
+
+          {/* Top Metadata Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {/* Logo Box */}
+            <div className="border border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-center bg-slate-50/50 min-h-[160px]">
+              <div className="w-10 h-10 bg-[#00875A]/10 rounded-xl flex items-center justify-center text-[#00875A] mb-3">
+                <Upload size={18} />
+              </div>
+              <p className="text-xs text-slate-400 font-medium mb-3">Your logo will be displayed here<br/>(128 × 128)</p>
+              <button className="text-xs font-bold text-[#00875A] bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition-all">
+                Add Logo
+              </button>
+            </div>
+
+            {/* Fields Right */}
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Customer <span className="text-rose-500">*</span></label>
+                <select className="form-select-custom">
+                  <option value="">Select or search customers...</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Invoice Type <span className="text-rose-500">*</span></label>
+                <select 
+                  name="invoice_type" 
+                  className="form-select-custom"
+                  value={formData.invoice_type}
                   onChange={handleInputChange}
                 >
                   <option>Standard Invoice (388)</option>
                   <option>Credit Note (381)</option>
                 </select>
-              </InputGroup>
-            </div>
-          </AccordionSection>
-
-          {/* 2. Currency & Financial Info */}
-          <AccordionSection
-            number={2}
-            title="Currency & Financial Info"
-            description="Currency codes and financial references"
-            isOpen={openSection === 2}
-            onToggle={() => handleToggle(2)}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputGroup label="Document Currency" required>
-                <select className="form-input-custom">
-                  <option>NGN (Nigerian Naira)</option>
-                </select>
-              </InputGroup>
-              <InputGroup label="Tax Currency" required>
-                <select className="form-input-custom">
-                  <option>NGN (Nigerian Naira)</option>
-                </select>
-              </InputGroup>
-              <InputGroup label="Accounting Cost">
-                <input
-                  type="number"
-                  className="form-input-custom"
-                  placeholder="0"
-                />
-              </InputGroup>
-              <InputGroup label="Buyer Reference">
-                <input
-                  type="text"
-                  className="form-input-custom"
-                  placeholder="REF-001"
-                />
-              </InputGroup>
-            </div>
-          </AccordionSection>
-
-          {/* 3. Delivery & References */}
-          <AccordionSection
-            number={3}
-            title="Delivery & References"
-            description="Order references and document links"
-            isOpen={openSection === 3}
-            onToggle={() => handleToggle(3)}
-          >
-            <div className="space-y-4">
-              <InputGroup label="Order Reference">
-                <input
-                  type="text"
-                  className="form-input-custom"
-                  placeholder="PO-12345"
-                />
-              </InputGroup>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 rounded-xl flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-500 uppercase">
-                    Billing References
-                  </span>
-                  <button className="text-[10px] font-bold text-indigo-600">
-                    + Add
-                  </button>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-xl flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-500 uppercase">
-                    Dispatch References
-                  </span>
-                  <button className="text-[10px] font-bold text-indigo-600">
-                    + Add
-                  </button>
-                </div>
               </div>
-            </div>
-          </AccordionSection>
 
-          {/* 4. Parties (Supplier & Customer) */}
-          <AccordionSection
-            number={4}
-            title="Parties (Supplier & Customer)"
-            description="Identity details"
-            isOpen={openSection === 4}
-            onToggle={() => handleToggle(4)}
-          >
-            <div className="space-y-6">
-              <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100">
-                <h4 className="flex items-center gap-2 font-bold text-slate-900 mb-4 text-sm">
-                  <Building2 size={14} className="text-indigo-600" /> Supplier
-                  Details
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <InputGroup label="Name" required>
-                    <input
-                      name="supplier_name"
-                      type="text"
-                      className="form-input-custom"
-                      value={formData.supplier_name}
-                      onChange={handleInputChange}
-                    />
-                  </InputGroup>
-                </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Invoice Date <span className="text-rose-500">*</span></label>
+                <input type="date" className="form-input-flat" />
               </div>
-            </div>
-          </AccordionSection>
 
-          {/* 5. Payment Means & Charges */}
-          <AccordionSection
-            number={5}
-            title="Payment Means & Charges"
-            description="Payment methods and allowances/charges"
-            isOpen={openSection === 5}
-            onToggle={() => handleToggle(5)}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputGroup label="Payment Means" required>
-                <select className="form-input-custom">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Due Date <span className="text-rose-500">*</span></label>
+                <input type="date" className="form-input-flat" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Currency <span className="text-rose-500">*</span></label>
+                <select className="form-select-custom">
+                  <option>Nigerian Naira</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Payment Means <span className="text-rose-500">*</span></label>
+                <select className="form-select-custom">
+                  <option>--Select Payment Means--</option>
                   <option>Bank Transfer (42)</option>
                   <option>Credit Card (48)</option>
                   <option>Cash (10)</option>
                 </select>
-              </InputGroup>
-              <InputGroup label="Allowance / Charge Amount">
-                <input
-                  type="number"
-                  placeholder="0.00"
-                  className="form-input-custom"
-                />
-              </InputGroup>
+              </div>
             </div>
-          </AccordionSection>
+          </div>
 
-          {/* 6. Tax Information */}
-          <AccordionSection
-            number={6}
-            title="Tax Information"
-            description="Tax totals and subtotals"
-            isOpen={openSection === 6}
-            onToggle={() => handleToggle(6)}
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <InputGroup label="Taxable Amt">
-                <input type="number" className="form-input-custom" />
-              </InputGroup>
-              <InputGroup label="Tax Amt">
-                <input type="number" className="form-input-custom" />
-              </InputGroup>
-              <InputGroup label="Cat ID">
-                <input
-                  type="text"
-                  defaultValue="S"
-                  className="form-input-custom"
-                />
-              </InputGroup>
-              <InputGroup label="Percent (%)">
-                <input
-                  type="number"
-                  defaultValue={7.5}
-                  className="form-input-custom"
-                />
-              </InputGroup>
-            </div>
-          </AccordionSection>
+          <div className="flex justify-end mb-8">
+            <button className="text-xs font-bold text-[#00875A] border border-[#00875A]/20 bg-[#00875A]/5 px-4 py-2 rounded-lg hover:bg-[#00875A]/10 transition-all">
+              + Add extra fields
+            </button>
+          </div>
 
-          {/* 7. Legal Monetary Total */}
-          <AccordionSection
-            number={7}
-            title="Legal Monetary Total"
-            description="Invoice totals and payable amount"
-            isOpen={openSection === 7}
-            onToggle={() => handleToggle(7)}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-slate-900 rounded-3xl text-white">
-              <InputGroup label="Line Extension">
-                <div className="text-2xl font-bold">₦ 0.00</div>
-              </InputGroup>
-              <InputGroup label="Tax Exclusive">
-                <div className="text-2xl font-bold">₦ 0.00</div>
-              </InputGroup>
-              <InputGroup label="Tax Inclusive">
-                <div className="text-2xl font-bold">₦ 0.00</div>
-              </InputGroup>
-              <InputGroup label="Payable Amount">
-                <div className="text-4xl font-black text-indigo-400">
-                  ₦ 0.00
-                </div>
-              </InputGroup>
-            </div>
-          </AccordionSection>
-
-          {/* 8. Invoice Line Items */}
-          <AccordionSection
-            number={8}
-            title="Invoice Line Items"
-            description="Products or services being invoiced"
-            isOpen={openSection === 8}
-            onToggle={() => handleToggle(8)}
-          >
+          {/* Split Parties Info Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-8 mb-8">
+            {/* Bill To */}
             <div className="space-y-4">
-              {lineItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-6 border border-slate-100 rounded-2xl grid grid-cols-1 md:grid-cols-4 gap-4 relative group"
-                >
-                  <div className="md:col-span-2">
-                    <InputGroup label="Description" required>
-                      <input type="text" className="form-input-custom" />
-                    </InputGroup>
-                  </div>
-                  <InputGroup label="Qty" required>
-                    <input type="number" className="form-input-custom" />
-                  </InputGroup>
-                  <InputGroup label="Unit Price" required>
-                    <input type="number" className="form-input-custom" />
-                  </InputGroup>
-                  <button
-                    onClick={() => removeLineItem(item.id)}
-                    className="absolute -top-2 -right-2 bg-rose-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Bill To</h3>
+              
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Company Name <span className="text-rose-500">*</span></label>
+                <input type="text" className="form-input-flat" placeholder="Enter Company Name" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Company Email Address <span className="text-rose-500">*</span></label>
+                <input type="email" className="form-input-flat" placeholder="Type email address" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Billing Address <span className="text-rose-500">*</span></label>
+                <textarea className="form-textarea-flat" rows={2} placeholder="Type address information" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Contact Person Name <span className="text-rose-500">*</span></label>
+                <input type="text" className="form-input-flat" placeholder="Type Contact Person Name" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600">Branch or Division</label>
+                  <select className="form-select-custom">
+                    <option>--Select Branch or Division--</option>
+                  </select>
                 </div>
-              ))}
-              <button
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600">Contact Person's Departments</label>
+                  <select className="form-select-custom">
+                    <option>--Select Contact Person's Department--</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Invoice Purpose <span className="text-rose-500">*</span></label>
+                <textarea className="form-textarea-flat" rows={2} placeholder="Type detailed purchase information" />
+              </div>
+            </div>
+
+            {/* Your Details */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Your Details</h3>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Company Name <span className="text-rose-500">*</span></label>
+                <input 
+                  type="text" 
+                  name="supplier_name"
+                  className="form-input-flat bg-slate-50 font-semibold" 
+                  value={formData.supplier_name}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Email Address <span className="text-rose-500">*</span></label>
+                <input type="email" className="form-input-flat bg-slate-50 text-slate-500" value="princejosephpj56@gmail.com" readOnly />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Phone Number <span className="text-rose-500">*</span></label>
+                <input type="text" className="form-input-flat bg-slate-50 text-slate-500" value="08162224407" readOnly />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600">Shipping Address <span className="text-rose-500">*</span></label>
+                <textarea className="form-textarea-flat bg-slate-50 text-slate-500" rows={2} value="NO.65 AHMADU BELLO WAY, , , Nigeria," readOnly />
+              </div>
+            </div>
+          </div>
+
+          {/* Items Section */}
+          <div className="border-t border-slate-100 pt-8 mb-8">
+            <h3 className="text-base font-bold text-slate-900 mb-4">Items</h3>
+            
+            <div className="flex gap-3 mb-6">
+              <button 
                 onClick={addLineItem}
-                className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl font-bold text-slate-400 hover:border-indigo-400 hover:text-indigo-600 transition-all flex items-center justify-center gap-2"
+                className="text-xs font-bold bg-[#00875A] text-white px-4 py-2 rounded-lg hover:bg-[#006F49] transition-all flex items-center gap-1.5"
               >
-                <Plus size={18} /> Add New Line Item
+                <Plus size={14} /> Add Item
+              </button>
+              <button className="text-xs font-bold bg-[#0A2540] text-white px-4 py-2 rounded-lg hover:bg-[#051424] transition-all flex items-center gap-1.5">
+                <Upload size={14} /> Upload Bulk Items
               </button>
             </div>
-          </AccordionSection>
+
+            {/* Table Dynamic Layout */}
+            <div className="space-y-4">
+              {lineItems.map((item) => (
+                <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-slate-50/50 p-4 rounded-xl border border-slate-100 relative group">
+                  <div className="md:col-span-6 flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-600 md:hidden">Description</label>
+                    <input type="text" className="form-input-flat bg-white" placeholder="Item description..." />
+                  </div>
+                  <div className="md:col-span-2 flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-600 md:hidden">Qty</label>
+                    <input type="number" className="form-input-flat bg-white" placeholder="1" />
+                  </div>
+                  <div className="md:col-span-3 flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-600 md:hidden">Unit Price</label>
+                    <input type="number" className="form-input-flat bg-white" placeholder="0.00" />
+                  </div>
+                  <div className="md:col-span-1 flex justify-center pb-2">
+                    <button 
+                      onClick={() => removeLineItem(item.id)}
+                      className="text-rose-500 p-2 hover:bg-rose-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pricing Calculations Blocks */}
+            <div className="flex flex-col items-end gap-3 mt-8 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-10 w-full max-w-sm justify-between">
+                <span className="text-sm font-medium text-slate-500">Subtotal</span>
+                <span className="text-sm font-bold text-slate-800 bg-slate-100/80 px-4 py-1.5 rounded-lg min-w-[120px] text-right">NGN 0.00</span>
+              </div>
+              <div className="flex items-center gap-10 w-full max-w-sm justify-between">
+                <span className="text-sm font-medium text-slate-500">Total Tax</span>
+                <span className="text-sm font-bold text-slate-800 bg-slate-100/80 px-4 py-1.5 rounded-lg min-w-[120px] text-right">NGN 0.00</span>
+              </div>
+              <div className="flex items-center gap-10 w-full max-w-sm justify-between">
+                <span className="text-sm font-bold text-slate-900">Total (NGN)</span>
+                <span className="text-sm font-bold text-slate-900 border border-slate-200 px-4 py-1.5 rounded-lg min-w-[120px] text-right">NGN 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Optional Context Fields */}
+          <div className="space-y-5 border-t border-slate-100 pt-8 mb-8">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-slate-700">Payment Note <span className="text-rose-500">*</span></label>
+              <textarea className="form-textarea-flat" rows={3} placeholder="Type something.." />
+            </div>
+
+            <button className="text-xs font-bold text-[#00875A] border border-[#00875A]/20 bg-[#00875A]/5 px-4 py-2 rounded-lg hover:bg-[#00875A]/10 transition-all">
+              Add extra field
+            </button>
+
+            {/* Signature Area */}
+            <div className="flex flex-col gap-1.5 max-w-xs">
+              <label className="text-xs font-bold text-slate-700">Authorized Signature</label>
+              <div className="border border-dashed border-slate-200 rounded-xl p-6 flex items-center justify-center bg-slate-50/50 min-h-[100px]">
+                <button className="text-xs font-bold text-[#00875A] bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition-all">
+                  Add a signature
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 max-w-sm">
+              <label className="text-xs font-bold text-slate-700">Name of Authorizer <span className="text-rose-500">*</span></label>
+              <input type="text" className="form-input-flat" placeholder="Enter name of authorizer" />
+            </div>
+          </div>
+
+          {/* Compliance Info Badge & CTA Actions Panel */}
+          <div className="flex flex-col sm:flex-row justify-between items-center border-t border-slate-100 pt-8 gap-6">
+            
+            {/* NRS Stamp Box */}
+            <div className="flex items-center gap-3">
+              <div className="bg-[#1E293B] text-white font-black px-3 py-1 rounded text-base tracking-tighter flex items-center gap-1.5">
+                NRS <span className="text-[9px] text-slate-400 font-normal leading-3 border-l border-slate-600 pl-1.5 uppercase">Nigeria<br/>Revenue<br/>Service</span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-medium max-w-[180px] leading-tight">
+                This Invoice will be Digitally Signed By NRS
+              </p>
+            </div>
+
+            {/* Submissions Control Panel */}
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              <button className="text-xs font-bold text-slate-600 border border-slate-200 px-6 py-3 rounded-xl hover:bg-slate-50 transition-all">
+                Save as Draft
+              </button>
+              
+              {loading ? (
+                <button className="text-xs font-bold bg-[#00875A]/60 text-white px-8 py-3 rounded-xl cursor-not-allowed" disabled>
+                  Proceeding...
+                </button>
+              ) : (
+                <button 
+                  onClick={submitInvoice}
+                  className="text-xs font-bold bg-[#00875A] text-white px-8 py-3 rounded-xl hover:bg-[#006F49] transition-all shadow-md shadow-[#00875A]/10"
+                >
+                  Proceed
+                </button>
+              )}
+            </div>
+
+          </div>
+
         </div>
       </main>
 
       <style jsx global>{`
-        .form-input-custom {
+        .form-input-flat {
           width: 100%;
-          height: 3.25rem;
-          background: #f8fafc;
-          border: 1px solid #f1f5f9;
-          border-radius: 1rem;
-          padding: 0 1.25rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: #1e293b;
+          height: 2.75rem;
+          background: #white;
+          border: 1px solid #E2E8F0;
+          border-radius: 0.5rem;
+          padding: 0 1rem;
+          font-size: 0.85rem;
+          color: #1E293B;
           outline: none;
           transition: all 0.2s;
         }
-        .form-input-custom:focus {
-          background: white;
-          border-color: #6366f1;
-          box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05);
+        .form-input-flat:focus {
+          border-color: #00875A;
+          box-shadow: 0 0 0 3px rgba(0, 135, 90, 0.05);
         }
-        .form-btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: #0f172a;
-          color: white;
-          padding: 0.75rem 1.75rem;
-          border-radius: 0.85rem;
-          font-weight: 700;
-          font-size: 0.875rem;
-          transition: all 0.2s;
-          box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
-        }
-        .form-btn-primary:hover {
-          background: #4f46e5;
-          transform: translateY(-1px);
-        }
-        .form-btn-secondary {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: white;
-          color: #475569;
-          padding: 0.75rem 1.75rem;
-          border-radius: 0.85rem;
-          font-weight: 700;
-          font-size: 0.875rem;
-          border: 1px solid #e2e8f0;
-          transition: all 0.2s;
-        }
-        .form-btn-secondary:hover {
-          background: #f8fafc;
-          border-color: #cbd5e1;
-        }
-        .form-input-custom {
+        .form-textarea-flat {
           width: 100%;
-          height: 3.25rem;
-          background: #f8fafc;
-          border: 1px solid #f1f5f9;
-          border-radius: 1rem;
-          padding: 0 1.25rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: #1e293b;
+          background: #white;
+          border: 1px solid #E2E8F0;
+          border-radius: 0.5rem;
+          padding: 0.75rem 1rem;
+          font-size: 0.85rem;
+          color: #1E293B;
           outline: none;
+          resize: none;
           transition: all 0.2s;
         }
-        .form-input-custom:focus {
-          background: white;
-          border-color: #6366f1;
-          box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05);
+        .form-textarea-flat:focus {
+          border-color: #00875A;
+          box-shadow: 0 0 0 3px rgba(0, 135, 90, 0.05);
         }
-        .form-btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: #0f172a;
-          color: white;
-          padding: 0.75rem 1.75rem;
-          border-radius: 0.85rem;
-          font-weight: 700;
-          font-size: 0.875rem;
+        .form-select-custom {
+          width: 100%;
+          height: 2.75rem;
+          background: #white;
+          border: 1px solid #E2E8F0;
+          border-radius: 0.5rem;
+          padding: 0 1rem;
+          font-size: 0.85rem;
+          color: #4A5568;
+          outline: none;
+          cursor: pointer;
           transition: all 0.2s;
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 1rem center;
+          background-size: 1rem;
         }
-        .form-btn-primary:hover {
-          background: #4f46e5;
-        }
-        .form-btn-secondary {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: white;
-          color: #475569;
-          padding: 0.75rem 1.75rem;
-          border-radius: 0.85rem;
-          font-weight: 700;
-          font-size: 0.875rem;
-          border: 1px solid #e2e8f0;
+        .form-select-custom:focus {
+          border-color: #00875A;
+          box-shadow: 0 0 0 3px rgba(0, 135, 90, 0.05);
         }
       `}</style>
     </div>
