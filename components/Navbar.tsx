@@ -16,6 +16,7 @@ import {
   Activity,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface NavbarProps {
   userRole: "user" | "admin" | "sadmin";
@@ -123,23 +124,7 @@ export default function Navbar({
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg transition-colors duration-300 group-hover:bg-[#10B981]">
-              <ShieldCheck size={20} className="sm:hidden" strokeWidth={2.5} />
-              <ShieldCheck
-                size={22}
-                className="hidden sm:block"
-                strokeWidth={2.5}
-              />
-            </div>
-
-            <div className="block">
-              <h1 className="text-sm sm:text-base font-black leading-tight text-slate-900 tracking-tight">
-                Invoice Manager
-              </h1>
-              <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
-                FIRS Compliance
-              </p>
-            </div>
+            <Image src={"/logo.svg"} width={128} height={128} alt="logo" />
           </Link>
 
           {/* Desktop Navigation */}

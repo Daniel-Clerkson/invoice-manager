@@ -1,23 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
-import {
-  FileText,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Plus,
-  Trash2,
-  Edit3,
-  X,
-  AlertTriangle,
-  Save,
-} from "lucide-react";
+import { Sliders, Edit3, Trash2, X, Save, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function UserDashboard() {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -26,7 +14,8 @@ export default function UserDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [editTarget, setEditTarget] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [username, setUsername] = useState("Loading...");
+  const [username, setUsername] = useState("");
+  const [activeTab, setActiveTab] = useState<"all" | "pending">("all");
 
   const router = useRouter();
 
@@ -41,18 +30,13 @@ export default function UserDashboard() {
         return;
       }
 
-      // Fetch both Invoices AND the User Profile concurrently
       const [invoicesRes, profileRes] = await Promise.all([
         supabase.from("invoices").select("*").eq("user_id", user.id),
         supabase.from("profiles").select("username").eq("id", user.id).single(),
       ]);
 
       if (invoicesRes.data) setInvoices(invoicesRes.data);
-
-      console.log(invoicesRes.data);
-      // Set the username from profileRes
       setUsername(profileRes.data?.username || "User");
-
       setLoading(false);
     }
 
@@ -60,33 +44,29 @@ export default function UserDashboard() {
   }, [router]);
 
   const handleDelete = async () => {
-    // Call your new DELETE API route
-    setDeleting(true)
+    setDeleting(true);
     const res = await fetch("/api/invoices/delete", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // Required to send the auth cookie
+      credentials: "include",
       body: JSON.stringify({ id: deleteTarget.id }),
     });
 
     if (res.ok) {
       setInvoices(invoices.filter((inv) => inv.id !== deleteTarget.id));
       setDeleteTarget(null);
-    } else {
-      console.error("Failed to delete invoice");
     }
-    setDeleting(false)
+    setDeleting(false);
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     setUpdating(true);
     e.preventDefault();
 
-    // Call your new PATCH API route
     const res = await fetch("/api/invoices/update", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // Required to send the auth cookie
+      credentials: "include",
       body: JSON.stringify({
         id: editTarget.id,
         updateData: {
@@ -98,304 +78,214 @@ export default function UserDashboard() {
     });
 
     if (res.ok) {
-      setInvoices(
-        invoices.map((inv) => (inv.id === editTarget.id ? editTarget : inv)),
-      );
+      setInvoices(invoices.map((inv) => (inv.id === editTarget.id ? editTarget : inv)));
       setEditTarget(null);
-    } else {
-      console.error("Failed to update invoice");
     }
-
     setUpdating(false);
   };
 
+  const filteredInvoices = invoices.filter((inv) => {
+    if (activeTab === "pending") return inv.status === "pending" || !inv.status;
+    return true;
+  });
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar userRole="user" username={username} />
+    <DashboardLayout username={username} onNewInvoiceClick={() => router.push("/dashboard/create")}>
+      
+      {/* Section Dynamic Header Identity */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Welcome to InvoiceMe</h1>
+        </div>
+        <button className="w-full sm:w-auto flex items-center justify-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition">
+          <Sliders size={13} /> Customize Invoice Portal
+        </button>
+      </div>
 
-      <main className="mx-auto max-w-7xl p-4 md:p-10">
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Dashboard
-            </h1>
-
-            <p className="text-slate-500 font-medium">
-              Manage and track your compliance data
-            </p>
+      {/* Interactive Custom Banner Frame */}
+      <div className="bg-[#EAFDF3] border border-emerald-100/60 rounded-xl p-5 sm:p-6 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm">
+        <div className="space-y-1 z-10 max-w-xl">
+          <h3 className="text-sm font-bold text-emerald-950">Create Your Custom Invoice Portal</h3>
+          <p className="text-xs text-emerald-800/80 leading-relaxed font-normal">
+            You haven't set up your customized supplier portal yet. Customize your portal to simplify invoice collection from vendors and suppliers seamlessly.
+          </p>
+          <div className="pt-2">
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2 rounded-lg shadow-sm transition active:scale-95">
+              Customize Portal
+            </button>
           </div>
-
-          <button
-            onClick={() => router.push("/dashboard/create")}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-600 shadow-xl transition-all active:scale-95"
-          >
-            <Plus size={18} /> Create Invoice
-          </button>
         </div>
 
-        {loading ? (
-          <div className="text-center py-20 font-bold text-slate-400">
-            Loading your data...
-          </div>
-        ) : (
-          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            {/* The overflow-x-auto allows the table to scroll horizontally on small screens */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50/50 text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                  <tr>
-                    {/* Use dynamic padding: px-4 on mobile, px-8 on desktop */}
-                    <th className="px-4 py-5 md:px-8">Invoice ID & IRN</th>
-                    <th className="px-4 py-5 md:px-8">Date</th>
-                    <th className="px-4 py-5 md:px-8">Amount</th>
-                    <th className="px-4 py-5 md:px-8">Status</th>
-                    <th className="px-4 py-5 md:px-8 text-right">Actions</th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-slate-50">
-                  {invoices.map((inv) => (
-                    <tr
-                      key={inv.id}
-                      className="hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="px-4 py-5 md:px-8">
-                        <p className="font-bold text-slate-800">
-                          INV-00{inv.id}
-                        </p>
-                        <p className="text-[10px] text-slate-400 font-mono mt-0.5 truncate max-w-[100px]">
-                          {inv.irn}
-                        </p>
-                      </td>
-                      <td className="px-4 py-5 md:px-8 text-slate-500 font-medium whitespace-nowrap">
-                        {inv.firs_payload.issue_date}
-                      </td>
-                      <td className="px-4 py-5 md:px-8 font-black text-slate-900 whitespace-nowrap">
-                        ₦{inv.total_amount?.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-5 md:px-8">
-                        <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase whitespace-nowrap ${
-                            inv.status === "approved"
-                              ? "bg-emerald-50 text-emerald-600"
-                              : "bg-slate-900 text-white"
-                          }`}
-                        >
-                          {inv.status || "Submitted"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-5 md:px-8 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => setEditTarget(inv)}
-                            className="p-2 text-slate-400 hover:text-indigo-600"
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(inv)}
-                            className="p-2 text-slate-400 hover:text-rose-600"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Embedded Decorative Block */}
+        <div className="hidden sm:block relative w-32 h-20 opacity-90 flex-shrink-0">
+          <div className="absolute inset-0 bg-white shadow-md border border-slate-100 rounded-lg p-2 text-[8px] font-bold space-y-1.5">
+            <div className="flex justify-between border-b border-slate-50 pb-1">
+              <span className="text-slate-400">Invoice Ref</span>
+              <span className="text-emerald-600">30,000.00 NGN</span>
+            </div>
+            <div className="h-2 w-16 bg-slate-100 rounded-sm" />
+            <div className="h-2 w-10 bg-slate-50 rounded-sm" />
+            <div className="flex justify-end pt-1">
+              <span className="bg-emerald-50 text-emerald-600 px-1 py-0.5 rounded text-[6px]">Paid</span>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      </div>
 
-      {/* --- MODALS --- */}
+      {/* Tab Filter Control Strip */}
+      <div className="flex border-b border-slate-200/60 gap-4 text-xs font-semibold pt-2">
+        <button
+          onClick={() => setActiveTab("all")}
+          className={`pb-2 px-1 relative transition-colors ${activeTab === "all" ? "text-slate-900" : "text-slate-400 hover:text-slate-600"}`}
+        >
+          All Incoming Invoices
+          {activeTab === "all" && (
+            <motion.div layoutId="activeUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab("pending")}
+          className={`pb-2 px-1 relative transition-colors ${activeTab === "pending" ? "text-slate-900" : "text-slate-400 hover:text-slate-600"}`}
+        >
+          Pending Invoices
+          {activeTab === "pending" && (
+            <motion.div layoutId="activeUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900" />
+          )}
+        </button>
+      </div>
+
+      {/* Ledger Presentation View */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20 text-xs font-semibold text-slate-400 bg-white border border-slate-100 rounded-xl shadow-sm">
+          <div className="animate-pulse">Synchronizing ledger data...</div>
+        </div>
+      ) : filteredInvoices.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4 bg-white border border-slate-100 rounded-xl text-center shadow-sm">
+          <h4 className="text-xs font-bold text-slate-700">No New Invoices</h4>
+          <p className="text-[11px] text-slate-400 max-w-xs mt-0.5">Your record queue is clear.</p>
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/70 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <th className="px-4 sm:px-6 py-3.5">Invoice ID & IRN</th>
+                  <th className="px-4 sm:px-6 py-3.5">Issue Date</th>
+                  <th className="px-4 sm:px-6 py-3.5">Total Amount</th>
+                  <th className="px-4 sm:px-6 py-3.5">Status Flag</th>
+                  <th className="px-4 sm:px-6 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50 text-xs font-medium text-slate-600">
+                {filteredInvoices.map((inv) => (
+                  <motion.tr key={inv.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="hover:bg-slate-50/40 transition-colors group">
+                    <td className="px-4 sm:px-6 py-4">
+                      <span className="font-bold text-slate-900 block">INV-00{inv.id}</span>
+                      <span className="text-[10px] font-mono text-slate-400 block truncate max-w-[100px] sm:max-w-[140px] mt-0.5">{inv.irn || "N/A"}</span>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-slate-500 font-normal whitespace-nowrap">
+                      {inv.firs_payload?.issue_date || "Not Listed"}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 font-bold text-slate-900 text-sm whitespace-nowrap">
+                      ₦{inv.total_amount?.toLocaleString()}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                        inv.status === "approved"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                          : inv.status === "rejected"
+                          ? "bg-rose-50 text-rose-700 border-rose-100"
+                          : "bg-amber-50 text-amber-700 border-amber-100"
+                      }`}>
+                        {inv.status || "Submitted"}
+                      </span>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-right">
+                      <div className="flex justify-end gap-1.5 lg:opacity-60 lg:group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setEditTarget(inv)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-slate-50 rounded transition">
+                          <Edit3 size={14} />
+                        </button>
+                        <button onClick={() => setDeleteTarget(inv)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded transition">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL LAYER --- */}
       <AnimatePresence>
-        {/* EDIT MODAL */}
         {editTarget && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setEditTarget(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl p-10"
-            >
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h2 className="text-2xl font-black text-slate-900">
-                    Edit Invoice
-                  </h2>
-                  <p className="text-sm text-slate-500">
-                    Updating <b>{editTarget.id}</b>
-                  </p>
-                </div>
-                <button
-                  onClick={() => setEditTarget(null)}
-                  className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-                >
-                  <X size={20} />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditTarget(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.98, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.98, opacity: 0, y: 10 }} className="relative w-full max-w-md bg-white border border-slate-100 rounded-xl shadow-xl p-5 sm:p-6">
+              <div className="flex justify-between items-center mb-5 border-b border-slate-50 pb-3">
+                <h2 className="text-base font-bold text-slate-900">Edit Invoice</h2>
+                <button onClick={() => setEditTarget(null)} className="p-1 text-slate-400 hover:text-slate-600 rounded">
+                  <X size={16} />
                 </button>
               </div>
-
-              <form onSubmit={handleUpdate} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">
-                      Issue Date
-                    </label>
+              <form onSubmit={handleUpdate} className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Issue Date</label>
                     <input
                       type="date"
                       value={editTarget?.firs_payload?.issue_date || ""}
-                      onChange={(e) =>
-                        setEditTarget({
-                          ...editTarget,
-                          firs_payload: {
-                            ...editTarget.firs_payload,
-                            issue_date: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-4 font-bold outline-none focus:ring-4 ring-indigo-500/5 transition-all"
+                      onChange={(e) => setEditTarget({ ...editTarget, firs_payload: { ...editTarget.firs_payload, issue_date: e.target.value } })}
+                      className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
                     />
                   </div>
-                  <div>
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">
-                      Total Amount (₦)
-                    </label>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Amount (₦)</label>
                     <input
                       type="number"
                       value={editTarget?.total_amount || ""}
-                      onChange={(e) =>
-                        setEditTarget({
-                          ...editTarget,
-                          total_amount: parseInt(e.target.value) || 0,
-                        })
-                      }
-                      className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-4 font-bold outline-none focus:ring-4 ring-indigo-500/5 transition-all"
+                      onChange={(e) => setEditTarget({ ...editTarget, total_amount: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2">
-                    Status Flag
-                  </label>
-                  <select
-                    value={editTarget.status}
-                    onChange={(e) =>
-                      setEditTarget({ ...editTarget, status: e.target.value })
-                    }
-                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-4 font-bold outline-none focus:ring-4 ring-indigo-500/5 transition-all"
-                  >
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Status State</label>
+                  <select value={editTarget.status} onChange={(e) => setEditTarget({ ...editTarget, status: e.target.value })} className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
                     <option value="pending">Pending</option>
                     <option value="submitted">Submitted</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                   </select>
                 </div>
-                {updating ? ( // If updating is true, show Loading
-                  <button
-                    disabled
-                    className="cursor-not-allowed w-full py-5 bg-slate-400 text-white rounded-2xl font-black text-sm mt-4 transition-all flex items-center justify-center gap-2"
-                  >
-                    Updating...
-                  </button>
-                ) : (
-                  // If updating is false, show the clickable button
-                  <button
-                    type="submit"
-                    className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-sm mt-4 hover:bg-indigo-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Save size={18} /> Update Invoice Record
-                  </button>
-                )}
+                <button type="submit" disabled={updating} className="w-full h-10 bg-emerald-600 text-white rounded-lg text-xs font-semibold mt-2 flex items-center justify-center gap-1.5 shadow-sm">
+                  <Save size={14} /> {updating ? "Saving..." : "Update Invoice Record"}
+                </button>
               </form>
             </motion.div>
           </div>
         )}
 
-        {/* DELETE MODAL */}
         {deleteTarget && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDeleteTarget(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-10 text-center shadow-2xl"
-            >
-              <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertTriangle size={36} />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteTarget(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }} className="relative w-full max-w-xs bg-white border border-slate-100 rounded-xl shadow-xl p-5 text-center">
+              <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <AlertTriangle size={20} />
               </div>
-              <h2 className="text-xl font-black text-slate-900 mb-2">
-                Confirm Removal
-              </h2>
-              <p className="text-slate-500 text-sm mb-8 leading-relaxed">
-                Are you sure you want to delete <b>{deleteTarget.id}</b>? This
-                action is permanent and cannot be reversed.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteTarget(null)}
-                  className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200"
-                >
-                  Cancel
-                </button>
-                {deleting ? (
-                  <button
-                    disabled
-                    onClick={handleDelete}
-                    className="flex-1 py-4 bg-rose-900 text-white font-bold rounded-2xl shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
-                  >
-                    Deleting...
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleDelete}
-                    className="flex-1 py-4 bg-rose-600 text-white font-bold rounded-2xl shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all"
-                  >
-                    Delete
-                  </button>
-                )}
+              <h2 className="text-sm font-bold text-slate-900">Confirm Deletion</h2>
+              <p className="text-slate-400 text-xs mt-1 leading-relaxed">Are you sure you want to delete invoice record <b>{deleteTarget.id}</b>?</p>
+              <div className="flex gap-2 mt-4">
+                <button onClick={() => setDeleteTarget(null)} className="flex-1 h-9 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">Cancel</button>
+                <button onClick={handleDelete} disabled={deleting} className="flex-1 h-9 bg-rose-600 text-white text-xs font-semibold rounded-lg shadow-sm">{deleting ? "Removing..." : "Delete"}</button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex justify-between items-start hover:border-indigo-100 transition-colors">
-      <div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-          {label}
-        </p>
-        <h3 className="mt-4 text-4xl font-black text-slate-900">{value}</h3>
-      </div>
-      <div className="bg-slate-50 p-3 rounded-2xl">{icon}</div>
-    </div>
+    </DashboardLayout>
   );
 }
