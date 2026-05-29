@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, ArrowRight, LayoutDashboard } from 'lucide-react';
 import Link from "next/link";
 import { supabase } from "@/lib/supabase"; // Import your initialized client
+import Image from 'next/image';
 
 const HomeNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -31,13 +32,7 @@ const HomeNavbar = () => {
       }`}>
       <div className="flex items-center justify-between px-5 sm:px-6 mx-auto max-w-7xl">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg transition-colors group-hover:bg-[#10B981]">
-            <ShieldCheck size={22} strokeWidth={2.5} />
-          </div>
-          <div>
-            <h1 className="text-sm font-black text-slate-900 tracking-tight">Invoice Manager</h1>
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">FIRS Compliance</p>
-          </div>
+         <Image src={"/logo.svg"} alt='Logo' width={128} height={128} />
         </Link>
         
         <div className="flex items-center gap-3 sm:gap-8">
