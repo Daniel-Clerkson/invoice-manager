@@ -1,12 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Save,
-  Send,
-  Plus,
-  Trash2,
-  Upload,
-} from "lucide-react";
+import { Save, Send, Plus, Trash2, Upload } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -112,16 +106,17 @@ export default function CreateInvoice() {
     setLoading(false);
   };
 
-  if (!authChecked) return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-      <p className="font-bold text-slate-400">Loading...</p>
-    </div>
-  );
+  if (!authChecked)
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <p className="font-bold text-slate-400">Loading...</p>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] text-[#1E293B]">
       <Navbar userRole="user" username="User" />
-      
+
       {/* Toast Notification */}
       <AnimatePresence>
         {toast.message && (
@@ -140,19 +135,23 @@ export default function CreateInvoice() {
 
       {/* Sub-Header Navigation */}
       <div className="border-b border-slate-100 bg-white px-8 py-4 flex items-center gap-3">
-        <span className="text-slate-400 font-medium cursor-pointer" onClick={() => router.back()}>←</span>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-slate-800">InvoiceMe</span>
-          <span className="text-xs font-medium text-slate-400">Official Supplier Portal</span>
-        </div>
+        <span
+          className="text-slate-400 font-medium cursor-pointer"
+          onClick={() => router.back()}
+        >
+          ← Back
+        </span>
       </div>
 
       <main className="max-w-[1200px] mx-auto p-8">
         <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
-          
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
-            <h1 className="text-xl font-bold text-slate-900">Generate an Invoice to Customer</h1>
-            <button className="text-slate-400 hover:text-slate-600 text-lg">×</button>
+            <h1 className="text-xl font-bold text-slate-900">
+              Generate an Invoice to Customer
+            </h1>
+            <button className="text-slate-400 hover:text-slate-600 text-lg">
+              ×
+            </button>
           </div>
 
           {/* Top Metadata Section */}
@@ -162,7 +161,11 @@ export default function CreateInvoice() {
               <div className="w-10 h-10 bg-[#00875A]/10 rounded-xl flex items-center justify-center text-[#00875A] mb-3">
                 <Upload size={18} />
               </div>
-              <p className="text-xs text-slate-400 font-medium mb-3">Your logo will be displayed here<br/>(128 × 128)</p>
+              <p className="text-xs text-slate-400 font-medium mb-3">
+                Your logo will be displayed here
+                <br />
+                (128 × 128)
+              </p>
               <button className="text-xs font-bold text-[#00875A] bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition-all">
                 Add Logo
               </button>
@@ -171,16 +174,20 @@ export default function CreateInvoice() {
             {/* Fields Right */}
             <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Customer <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold text-slate-700">
+                  Customer <span className="text-rose-500">*</span>
+                </label>
                 <select className="form-select-custom">
                   <option value="">Select or search customers...</option>
                 </select>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Invoice Type <span className="text-rose-500">*</span></label>
-                <select 
-                  name="invoice_type" 
+                <label className="text-xs font-bold text-slate-700">
+                  Invoice Type <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  name="invoice_type"
                   className="form-select-custom"
                   value={formData.invoice_type}
                   onChange={handleInputChange}
@@ -191,24 +198,32 @@ export default function CreateInvoice() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Invoice Date <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold text-slate-700">
+                  Invoice Date <span className="text-rose-500">*</span>
+                </label>
                 <input type="date" className="form-input-flat" />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Due Date <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold text-slate-700">
+                  Due Date <span className="text-rose-500">*</span>
+                </label>
                 <input type="date" className="form-input-flat" />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Currency <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold text-slate-700">
+                  Currency <span className="text-rose-500">*</span>
+                </label>
                 <select className="form-select-custom">
                   <option>Nigerian Naira</option>
                 </select>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Payment Means <span className="text-rose-500">*</span></label>
+                <label className="text-xs font-bold text-slate-700">
+                  Payment Means <span className="text-rose-500">*</span>
+                </label>
                 <select className="form-select-custom">
                   <option>--Select Payment Means--</option>
                   <option>Bank Transfer (42)</option>
@@ -229,37 +244,67 @@ export default function CreateInvoice() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-8 mb-8">
             {/* Bill To */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Bill To</h3>
-              
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Bill To
+              </h3>
+
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Company Name <span className="text-rose-500">*</span></label>
-                <input type="text" className="form-input-flat" placeholder="Enter Company Name" />
+                <label className="text-xs font-bold text-slate-600">
+                  Company Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-input-flat"
+                  placeholder="Enter Company Name"
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Company Email Address <span className="text-rose-500">*</span></label>
-                <input type="email" className="form-input-flat" placeholder="Type email address" />
+                <label className="text-xs font-bold text-slate-600">
+                  Company Email Address <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  className="form-input-flat"
+                  placeholder="Type email address"
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Billing Address <span className="text-rose-500">*</span></label>
-                <textarea className="form-textarea-flat" rows={2} placeholder="Type address information" />
+                <label className="text-xs font-bold text-slate-600">
+                  Billing Address <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  className="form-textarea-flat"
+                  rows={2}
+                  placeholder="Type address information"
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Contact Person Name <span className="text-rose-500">*</span></label>
-                <input type="text" className="form-input-flat" placeholder="Type Contact Person Name" />
+                <label className="text-xs font-bold text-slate-600">
+                  Contact Person Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-input-flat"
+                  placeholder="Type Contact Person Name"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600">Branch or Division</label>
+                  <label className="text-xs font-bold text-slate-600">
+                    Branch or Division
+                  </label>
                   <select className="form-select-custom">
                     <option>--Select Branch or Division--</option>
                   </select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600">Contact Person's Departments</label>
+                  <label className="text-xs font-bold text-slate-600">
+                    Contact Person's Departments
+                  </label>
                   <select className="form-select-custom">
                     <option>--Select Contact Person's Department--</option>
                   </select>
@@ -267,39 +312,70 @@ export default function CreateInvoice() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Invoice Purpose <span className="text-rose-500">*</span></label>
-                <textarea className="form-textarea-flat" rows={2} placeholder="Type detailed purchase information" />
+                <label className="text-xs font-bold text-slate-600">
+                  Invoice Purpose <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  className="form-textarea-flat"
+                  rows={2}
+                  placeholder="Type detailed purchase information"
+                />
               </div>
             </div>
 
             {/* Your Details */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">Your Details</h3>
+              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">
+                Your Details
+              </h3>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Company Name <span className="text-rose-500">*</span></label>
-                <input 
-                  type="text" 
+                <label className="text-xs font-bold text-slate-600">
+                  Company Name <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
                   name="supplier_name"
-                  className="form-input-flat bg-slate-50 font-semibold" 
+                  className="form-input-flat bg-slate-50 font-semibold"
                   value={formData.supplier_name}
                   onChange={handleInputChange}
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Email Address <span className="text-rose-500">*</span></label>
-                <input type="email" className="form-input-flat bg-slate-50 text-slate-500" value="princejosephpj56@gmail.com" readOnly />
+                <label className="text-xs font-bold text-slate-600">
+                  Email Address <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  className="form-input-flat bg-slate-50 text-slate-500"
+                  value="princejosephpj56@gmail.com"
+                  readOnly
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Phone Number <span className="text-rose-500">*</span></label>
-                <input type="text" className="form-input-flat bg-slate-50 text-slate-500" value="08162224407" readOnly />
+                <label className="text-xs font-bold text-slate-600">
+                  Phone Number <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-input-flat bg-slate-50 text-slate-500"
+                  value="08162224407"
+                  readOnly
+                />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-600">Shipping Address <span className="text-rose-500">*</span></label>
-                <textarea className="form-textarea-flat bg-slate-50 text-slate-500" rows={2} value="NO.65 AHMADU BELLO WAY, , , Nigeria," readOnly />
+                <label className="text-xs font-bold text-slate-600">
+                  Shipping Address <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  className="form-textarea-flat bg-slate-50 text-slate-500"
+                  rows={2}
+                  value="NO.65 AHMADU BELLO WAY, , , Nigeria,"
+                  readOnly
+                />
               </div>
             </div>
           </div>
@@ -307,9 +383,9 @@ export default function CreateInvoice() {
           {/* Items Section */}
           <div className="border-t border-slate-100 pt-8 mb-8">
             <h3 className="text-base font-bold text-slate-900 mb-4">Items</h3>
-            
+
             <div className="flex gap-3 mb-6">
-              <button 
+              <button
                 onClick={addLineItem}
                 className="text-xs font-bold bg-[#00875A] text-white px-4 py-2 rounded-lg hover:bg-[#006F49] transition-all flex items-center gap-1.5"
               >
@@ -323,21 +399,42 @@ export default function CreateInvoice() {
             {/* Table Dynamic Layout */}
             <div className="space-y-4">
               {lineItems.map((item) => (
-                <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-slate-50/50 p-4 rounded-xl border border-slate-100 relative group">
+                <div
+                  key={item.id}
+                  className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-slate-50/50 p-4 rounded-xl border border-slate-100 relative group"
+                >
                   <div className="md:col-span-6 flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-600 md:hidden">Description</label>
-                    <input type="text" className="form-input-flat bg-white" placeholder="Item description..." />
+                    <label className="text-xs font-bold text-slate-600 md:hidden">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      className="form-input-flat bg-white"
+                      placeholder="Item description..."
+                    />
                   </div>
                   <div className="md:col-span-2 flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-600 md:hidden">Qty</label>
-                    <input type="number" className="form-input-flat bg-white" placeholder="1" />
+                    <label className="text-xs font-bold text-slate-600 md:hidden">
+                      Qty
+                    </label>
+                    <input
+                      type="number"
+                      className="form-input-flat bg-white"
+                      placeholder="1"
+                    />
                   </div>
                   <div className="md:col-span-3 flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-600 md:hidden">Unit Price</label>
-                    <input type="number" className="form-input-flat bg-white" placeholder="0.00" />
+                    <label className="text-xs font-bold text-slate-600 md:hidden">
+                      Unit Price
+                    </label>
+                    <input
+                      type="number"
+                      className="form-input-flat bg-white"
+                      placeholder="0.00"
+                    />
                   </div>
                   <div className="md:col-span-1 flex justify-center pb-2">
-                    <button 
+                    <button
                       onClick={() => removeLineItem(item.id)}
                       className="text-rose-500 p-2 hover:bg-rose-50 rounded-lg transition-colors"
                     >
@@ -351,16 +448,28 @@ export default function CreateInvoice() {
             {/* Pricing Calculations Blocks */}
             <div className="flex flex-col items-end gap-3 mt-8 pt-4 border-t border-slate-100">
               <div className="flex items-center gap-10 w-full max-w-sm justify-between">
-                <span className="text-sm font-medium text-slate-500">Subtotal</span>
-                <span className="text-sm font-bold text-slate-800 bg-slate-100/80 px-4 py-1.5 rounded-lg min-w-[120px] text-right">NGN 0.00</span>
+                <span className="text-sm font-medium text-slate-500">
+                  Subtotal
+                </span>
+                <span className="text-sm font-bold text-slate-800 bg-slate-100/80 px-4 py-1.5 rounded-lg min-w-[120px] text-right">
+                  NGN 0.00
+                </span>
               </div>
               <div className="flex items-center gap-10 w-full max-w-sm justify-between">
-                <span className="text-sm font-medium text-slate-500">Total Tax</span>
-                <span className="text-sm font-bold text-slate-800 bg-slate-100/80 px-4 py-1.5 rounded-lg min-w-[120px] text-right">NGN 0.00</span>
+                <span className="text-sm font-medium text-slate-500">
+                  Total Tax
+                </span>
+                <span className="text-sm font-bold text-slate-800 bg-slate-100/80 px-4 py-1.5 rounded-lg min-w-[120px] text-right">
+                  NGN 0.00
+                </span>
               </div>
               <div className="flex items-center gap-10 w-full max-w-sm justify-between">
-                <span className="text-sm font-bold text-slate-900">Total (NGN)</span>
-                <span className="text-sm font-bold text-slate-900 border border-slate-200 px-4 py-1.5 rounded-lg min-w-[120px] text-right">NGN 0.00</span>
+                <span className="text-sm font-bold text-slate-900">
+                  Total (NGN)
+                </span>
+                <span className="text-sm font-bold text-slate-900 border border-slate-200 px-4 py-1.5 rounded-lg min-w-[120px] text-right">
+                  NGN 0.00
+                </span>
               </div>
             </div>
           </div>
@@ -368,8 +477,14 @@ export default function CreateInvoice() {
           {/* Bottom Optional Context Fields */}
           <div className="space-y-5 border-t border-slate-100 pt-8 mb-8">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-700">Payment Note <span className="text-rose-500">*</span></label>
-              <textarea className="form-textarea-flat" rows={3} placeholder="Type something.." />
+              <label className="text-xs font-bold text-slate-700">
+                Payment Note <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                className="form-textarea-flat"
+                rows={3}
+                placeholder="Type something.."
+              />
             </div>
 
             <button className="text-xs font-bold text-[#00875A] border border-[#00875A]/20 bg-[#00875A]/5 px-4 py-2 rounded-lg hover:bg-[#00875A]/10 transition-all">
@@ -378,7 +493,9 @@ export default function CreateInvoice() {
 
             {/* Signature Area */}
             <div className="flex flex-col gap-1.5 max-w-xs">
-              <label className="text-xs font-bold text-slate-700">Authorized Signature</label>
+              <label className="text-xs font-bold text-slate-700">
+                Authorized Signature
+              </label>
               <div className="border border-dashed border-slate-200 rounded-xl p-6 flex items-center justify-center bg-slate-50/50 min-h-[100px]">
                 <button className="text-xs font-bold text-[#00875A] bg-white border border-slate-200 shadow-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition-all">
                   Add a signature
@@ -387,18 +504,30 @@ export default function CreateInvoice() {
             </div>
 
             <div className="flex flex-col gap-1.5 max-w-sm">
-              <label className="text-xs font-bold text-slate-700">Name of Authorizer <span className="text-rose-500">*</span></label>
-              <input type="text" className="form-input-flat" placeholder="Enter name of authorizer" />
+              <label className="text-xs font-bold text-slate-700">
+                Name of Authorizer <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-input-flat"
+                placeholder="Enter name of authorizer"
+              />
             </div>
           </div>
 
           {/* Compliance Info Badge & CTA Actions Panel */}
           <div className="flex flex-col sm:flex-row justify-between items-center border-t border-slate-100 pt-8 gap-6">
-            
             {/* NRS Stamp Box */}
             <div className="flex items-center gap-3">
               <div className="bg-[#1E293B] text-white font-black px-3 py-1 rounded text-base tracking-tighter flex items-center gap-1.5">
-                NRS <span className="text-[9px] text-slate-400 font-normal leading-3 border-l border-slate-600 pl-1.5 uppercase">Nigeria<br/>Revenue<br/>Service</span>
+                NRS{" "}
+                <span className="text-[9px] text-slate-400 font-normal leading-3 border-l border-slate-600 pl-1.5 uppercase">
+                  Nigeria
+                  <br />
+                  Revenue
+                  <br />
+                  Service
+                </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium max-w-[180px] leading-tight">
                 This Invoice will be Digitally Signed By NRS
@@ -410,13 +539,16 @@ export default function CreateInvoice() {
               <button className="text-xs font-bold text-slate-600 border border-slate-200 px-6 py-3 rounded-xl hover:bg-slate-50 transition-all">
                 Save as Draft
               </button>
-              
+
               {loading ? (
-                <button className="text-xs font-bold bg-[#00875A]/60 text-white px-8 py-3 rounded-xl cursor-not-allowed" disabled>
+                <button
+                  className="text-xs font-bold bg-[#00875A]/60 text-white px-8 py-3 rounded-xl cursor-not-allowed"
+                  disabled
+                >
                   Proceeding...
                 </button>
               ) : (
-                <button 
+                <button
                   onClick={submitInvoice}
                   className="text-xs font-bold bg-[#00875A] text-white px-8 py-3 rounded-xl hover:bg-[#006F49] transition-all shadow-md shadow-[#00875A]/10"
                 >
@@ -424,9 +556,7 @@ export default function CreateInvoice() {
                 </button>
               )}
             </div>
-
           </div>
-
         </div>
       </main>
 
@@ -435,43 +565,43 @@ export default function CreateInvoice() {
           width: 100%;
           height: 2.75rem;
           background: #white;
-          border: 1px solid #E2E8F0;
+          border: 1px solid #e2e8f0;
           border-radius: 0.5rem;
           padding: 0 1rem;
           font-size: 0.85rem;
-          color: #1E293B;
+          color: #1e293b;
           outline: none;
           transition: all 0.2s;
         }
         .form-input-flat:focus {
-          border-color: #00875A;
+          border-color: #00875a;
           box-shadow: 0 0 0 3px rgba(0, 135, 90, 0.05);
         }
         .form-textarea-flat {
           width: 100%;
           background: #white;
-          border: 1px solid #E2E8F0;
+          border: 1px solid #e2e8f0;
           border-radius: 0.5rem;
           padding: 0.75rem 1rem;
           font-size: 0.85rem;
-          color: #1E293B;
+          color: #1e293b;
           outline: none;
           resize: none;
           transition: all 0.2s;
         }
         .form-textarea-flat:focus {
-          border-color: #00875A;
+          border-color: #00875a;
           box-shadow: 0 0 0 3px rgba(0, 135, 90, 0.05);
         }
         .form-select-custom {
           width: 100%;
           height: 2.75rem;
           background: #white;
-          border: 1px solid #E2E8F0;
+          border: 1px solid #e2e8f0;
           border-radius: 0.5rem;
           padding: 0 1rem;
           font-size: 0.85rem;
-          color: #4A5568;
+          color: #4a5568;
           outline: none;
           cursor: pointer;
           transition: all 0.2s;
@@ -482,7 +612,7 @@ export default function CreateInvoice() {
           background-size: 1rem;
         }
         .form-select-custom:focus {
-          border-color: #00875A;
+          border-color: #00875a;
           box-shadow: 0 0 0 3px rgba(0, 135, 90, 0.05);
         }
       `}</style>

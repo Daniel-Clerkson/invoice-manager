@@ -11,14 +11,15 @@ import {
   Archive,
   ArrowRight,
   ShieldCheck,
-  Zap
+  Zap,
+  HelpCircle
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 
 export default function SubscriptionsPage() {
   // Navigation layout control: "plans" or "usage"
   const [activeTab, setActiveTab] = useState<"plans" | "usage">("plans");
-  const businessUser = "Prince Achoja";
+  
 
   // Pricing plans data structures matching your multi-tier frames
   const tiers = [
@@ -26,10 +27,10 @@ export default function SubscriptionsPage() {
       name: "Trial Tier",
       price: "₦0",
       period: "per annum",
-      description: "30-day trial to explore our platform with limited features.",
-      note: "(30-day trial only; Must upgrade to continue Service)",
-      features: ["5 invoices/month.", "No ERP integrations."],
-      cta: "Current Trial",
+      description: "30-day trial evaluation environment built to explore our automation suite with select modules.",
+      note: "(30-day evaluation window; requires upgrading to maintain system operational state)",
+      features: ["Up to 5 invoices / month", "Standard analytical overview dashboard", "No native external ERP connectors"],
+      cta: "Current Status",
       current: true,
       popular: false,
     },
@@ -37,9 +38,9 @@ export default function SubscriptionsPage() {
       name: "Basic Tier",
       price: "₦750,000",
       period: "per annum",
-      description: "Essential features for small businesses starting their e-invoicing journey.",
-      features: ["50 invoices/month.", "No ERP integrations.", "Email support."],
-      cta: "Select Plan",
+      description: "Essential governance layer tailored for scaling operations seeking basic automated verification workflows.",
+      features: ["Up to 50 invoices / month", "Standard analytics pipeline access", "No external ERP connector pipelines", "Dedicated standard email support"],
+      cta: "Provision Plan",
       current: false,
       popular: false,
     },
@@ -47,9 +48,9 @@ export default function SubscriptionsPage() {
       name: "Standard Tier",
       price: "₦1,500,000",
       period: "per annum",
-      description: "For mid-sized businesses with essential tools for streamlined financial management.",
-      features: ["200 invoices/month.", "Basic dashboard/analytics.", "No ERP integrations.", "Priority multi channel support, customisations."],
-      cta: "Select Plan",
+      description: "Optimized architecture providing reliable middleware capabilities for streamlined multi-tenant transaction routing.",
+      features: ["Up to 200 invoices / month", "Advanced analytical dashboard & matrix logs", "Priority multi-channel corporate support channels", "Custom report template parameters"],
+      cta: "Provision Plan",
       current: false,
       popular: true,
     },
@@ -57,10 +58,10 @@ export default function SubscriptionsPage() {
       name: "Enterprise Tier",
       price: "₦5,000,000",
       period: "per annum",
-      description: "For large corporates, providing advanced tools for enhanced financial control.",
-      extra: "ERP Integration Package (optional, one-time): ₦10,000,000",
-      features: ["1,000 invoices/month.", "ERP integrations (includes system configuration, testing/UAT, onboarding, and training).", "Real-time fraud alerts.", "White labelling.", "SDK access.", "Dedicated support and customisations."],
-      cta: "Select Plan",
+      description: "Robust, deeply integration-ready layer built for corporate environments demanding tight financial controllership.",
+      extra: "ERP Integration Package (Optional, single deployment): ₦10,000,000",
+      features: ["Up to 1,000 invoices / month", "ERP Integration packages (includes UAT testing, deployment, & onboarding)", "Real-time compliance fraud monitoring tools", "White-labelled distribution nodes & SDK access", "Dedicated account support engineers"],
+      cta: "Provision Plan",
       current: false,
       popular: false,
     },
@@ -68,84 +69,92 @@ export default function SubscriptionsPage() {
       name: "Unlimited Tier",
       price: "₦25,000,000",
       period: "per annum",
-      description: "Ultimate solution for enterprises requiring unlimited invoicing and premium SAP integrations.",
-      features: ["Unlimited invoices/month.", "ERP Integration, SAP connector integration, onboarding, and cutover support (SAP-BIZ 1, S4HANA, ECC.etc).", "Real-time fraud alerts.", "White labelling.", "SDK access.", "Dedicated support and customisations."],
-      cta: "Select Plan",
+      description: "Ultimate transaction governance framework supporting high-volume pipelines with custom SAP native integration stacks.",
+      features: ["Unlimited system invoice processing nodes", "Full enterprise connector architecture (SAP Business One, S4HANA, ECC, etc.)", "Real-time advanced fraud mitigation intelligence", "Bespoke platform white-labelling options", "Priority developer SDK access & custom scripts", "Continuous architecture consultation & customisations"],
+      cta: "Contact Enterprise",
       current: false,
       popular: false,
     }
   ];
 
   const usageMetrics = [
-    { label: "User Access", current: "1", max: "Unlimited", icon: <Users size={16} /> },
-    { label: "Send Invoices", current: "0", max: "Unlimited", icon: <Send size={16} /> },
-    { label: "Company", current: "1", max: "Unlimited", icon: <Building2 size={16} /> },
-    { label: "Branch", current: "1", max: "Unlimited", icon: <GitBranch size={16} /> },
-    { label: "Archive", current: "12 Months", max: "Unlimited", icon: <Archive size={16} /> },
+    { label: "User Access Seats", current: "1", max: "Unlimited", icon: <Users size={15} /> },
+    { label: "Outbound Invoices", current: "0", max: "Unlimited", icon: <Send size={15} /> },
+    { label: "Company Profiles", current: "1", max: "Unlimited", icon: <Building2 size={15} /> },
+    { label: "Branch Registers", current: "1", max: "Unlimited", icon: <GitBranch size={15} /> },
+    { label: "Archive Ledger Retention", current: "12 Mos", max: "Unlimited", icon: <Archive size={15} /> },
   ];
 
   return (
-    <DashboardLayout username={businessUser}>
+    <DashboardLayout username="">
       
       {/* Dynamic Tab Switcher Action Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
-        <div className="space-y-0.5">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Plans & Subscriptions</h1>
-          <p className="text-xs text-slate-400 font-medium">Scale your invoice operations and monitor your workspace limitations.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+        <div className="space-y-1">
+          <h1 className="text-xl sm:text-2xl font-black text-[#111A3E] tracking-tight">Billing Architecture</h1>
+          <p className="text-xs text-slate-400 font-medium">Provision transactional bandwidth capabilities, scale tier permissions, or monitor live workspace caps.</p>
         </div>
         
         {/* Unified clean Segmented Slider Pill */}
-        <div className="p-1 bg-slate-100/80 rounded-xl flex items-center w-full sm:w-auto shadow-inner border border-slate-200/40">
+        <div className="p-1 bg-slate-100/90 rounded-xl flex items-center w-full sm:w-auto shadow-sm border border-slate-200/40">
           <button
             onClick={() => setActiveTab("plans")}
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
               activeTab === "plans"
-                ? "bg-white text-[#00875A] shadow-sm"
-                : "text-slate-500 hover:text-slate-800"
+                ? "bg-white text-[#1A56FF] shadow-sm border border-slate-100"
+                : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            <Zap size={14} /> Available Packages
+            <Zap size={13} /> Available Packages
           </button>
           <button
             onClick={() => setActiveTab("usage")}
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
               activeTab === "usage"
-                ? "bg-white text-[#00875A] shadow-sm"
-                : "text-slate-500 hover:text-slate-800"
+                ? "bg-white text-[#1A56FF] shadow-sm border border-slate-100"
+                : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            <ShieldCheck size={14} /> My Active usage
+            <ShieldCheck size={13} /> Active Operational Usage
           </button>
         </div>
       </div>
 
       {activeTab === "usage" ? (
         /* Usage Limits Hub View */
-        <div className="space-y-6">
-          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+            <div className="absolute top-0 bottom-0 left-0 w-[4px] bg-[#1A56FF]" />
+            
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#00875A] flex items-center justify-center border border-emerald-100">
-                <Sparkles size={20} />
+              <div className="w-10 h-10 rounded-xl bg-[#F0F4FF] text-[#1A56FF] flex items-center justify-center border border-[#DCE4FF]">
+                <Sparkles size={18} />
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Current Base Plan</span>
-                <h3 className="text-base font-bold text-slate-900">Trial Tier System</h3>
+              <div className="space-y-0.5">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Active Platform Baseline</span>
+                <h3 className="text-base font-black text-[#111A3E] tracking-tight">Trial Tier System Suite</h3>
               </div>
             </div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
-              Postpaid Model
+            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-[#F0F4FF] text-[#1A56FF] border border-[#DCE4FF] tracking-tight">
+              Postpaid Model Matrix
             </span>
           </div>
 
           <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Product Usage Bounds</h3>
+            <div className="flex items-center gap-1.5 mb-3 px-1">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Workspace Boundary Metrics</h3>
+              <HelpCircle size={11} className="text-slate-300 cursor-help" />
+            </div>
+            
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {usageMetrics.map((metric, i) => (
-                <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-slate-200 transition">
-                  <div className="text-slate-400 mb-3">{metric.icon}</div>
-                  <span className="text-xs font-medium text-slate-500 block truncate">{metric.label}</span>
+                <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-[#1A56FF]/20 hover:shadow-md transition-all duration-300 group">
+                  <div className="text-slate-300 group-hover:text-[#1A56FF] transition-colors mb-3.5 p-2 bg-slate-50 w-fit rounded-lg border border-slate-100">
+                    {metric.icon}
+                  </div>
+                  <span className="text-xs font-bold text-slate-500 block truncate tracking-tight">{metric.label}</span>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-slate-900">{metric.current}</span>
+                    <span className="text-2xl font-black text-[#111A3E] tracking-tight">{metric.current}</span>
                     <span className="text-xs font-semibold text-slate-400">/ {metric.max}</span>
                   </div>
                 </div>
@@ -155,60 +164,63 @@ export default function SubscriptionsPage() {
         </div>
       ) : (
         /* Enhanced Matrix Layout Pricing Packages */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start animate-in fade-in duration-200">
           {tiers.map((tier, idx) => (
             <div
               key={idx}
-              className={`bg-white border rounded-2xl p-6 shadow-sm flex flex-col justify-between relative transition-all group ${
+              className={`bg-white border rounded-2xl p-6 shadow-sm flex flex-col justify-between relative transition-all duration-300 h-full group hover:shadow-md ${
                 tier.current 
-                  ? "border-[#00875A] ring-2 ring-[#00875A]/5" 
+                  ? "border-[#1A56FF] ring-4 ring-[#1A56FF]/5" 
                   : tier.popular
-                  ? "border-slate-200 lg:scale-[1.02] shadow-md ring-4 ring-slate-50"
-                  : "border-slate-100 hover:border-slate-200"
+                  ? "border-slate-200 lg:scale-[1.02] shadow-md ring-4 ring-slate-100/70"
+                  : "border-slate-100 hover:border-[#1A56FF]/20"
               }`}
             >
               {tier.popular && (
-                <span className="absolute -top-3 left-6 px-2.5 py-0.5 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-wider">
-                  Recommended
+                <span className="absolute -top-3 left-6 px-3 py-1 bg-[#1A56FF] text-white rounded-full text-[9px] font-black uppercase tracking-widest border border-white shadow-sm">
+                  Recommended Layout
                 </span>
               )}
 
               <div>
                 <div className="flex items-start justify-between">
-                  <h3 className="text-base font-bold text-slate-900 tracking-tight">{tier.name}</h3>
+                  <h3 className="text-base font-black text-[#111A3E] tracking-tight">{tier.name}</h3>
                   {tier.current && (
-                    <span className="bg-emerald-50 text-[#00875A] text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-100">
-                      Active
+                    <span className="bg-[#F0F4FF] text-[#1A56FF] text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border border-[#DCE4FF]">
+                      Current Scope
                     </span>
                   )}
                 </div>
                 
-                <p className="text-xs text-slate-400 font-medium mt-2 min-h-[32px] leading-relaxed">
+                <p className="text-xs text-slate-400 font-medium mt-2 min-h-[48px] leading-relaxed">
                   {tier.description}
                 </p>
 
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-slate-900 tracking-tight">{tier.price}</span>
-                  <span className="text-xs font-semibold text-slate-400">{tier.period}</span>
+                <div className="mt-5 flex items-baseline gap-1 bg-slate-50/70 border border-slate-100 p-3 rounded-xl">
+                  <span className="text-2xl font-black text-[#111A3E] tracking-tight">{tier.price}</span>
+                  <span className="text-xs font-bold text-slate-400 tracking-tight">{tier.period}</span>
                 </div>
 
                 {tier.note && (
-                  <p className="text-[10px] font-semibold text-amber-600 mt-1 italic">{tier.note}</p>
+                  <p className="text-[10px] font-bold text-amber-600 mt-2 bg-amber-50/50 border border-amber-100/60 p-2.5 rounded-xl leading-normal italic">
+                    {tier.note}
+                  </p>
                 )}
                 {tier.extra && (
-                  <p className="text-[10px] font-bold text-indigo-600 mt-2 bg-indigo-50 border border-indigo-100 p-2 rounded-xl">
+                  <p className="text-[10px] font-bold text-[#1A56FF] mt-2 bg-[#F0F4FF] border border-[#DCE4FF] p-2.5 rounded-xl leading-normal">
+                    <span className="uppercase text-[9px] font-black tracking-widest block mb-0.5 text-[#111A3E]">Optional Module addon:</span>
                     {tier.extra}
                   </p>
                 )}
 
-                <hr className="my-5 border-slate-50" />
+                <div className="my-5 border-b border-slate-100" />
 
                 <div className="space-y-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Limits & Details</span>
-                  <ul className="space-y-2.5">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Capabilities & Parameters</span>
+                  <ul className="space-y-3">
                     {tier.features.map((feature, fIdx) => (
-                      <li key={fIdx} className="flex items-start gap-2.5 text-xs font-medium text-slate-600 leading-normal">
-                        <CheckCircle2 size={14} className="text-[#00875A] shrink-0 mt-0.5" />
+                      <li key={fIdx} className="flex items-start gap-2.5 text-xs font-semibold text-slate-600 leading-normal">
+                        <CheckCircle2 size={14} className="text-[#1A56FF] shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -217,14 +229,15 @@ export default function SubscriptionsPage() {
               </div>
 
               <button
-                className={`w-full mt-8 flex items-center justify-center gap-2 text-xs font-bold py-2.5 rounded-xl transition-all ${
-                  tier.current
-                    ? "bg-slate-100 text-slate-400 cursor-default"
-                    : "bg-[#00875A] text-white hover:bg-[#006F49] shadow-sm hover:shadow"
-                }`}
                 disabled={tier.current}
+                className={`w-full mt-8 flex items-center justify-center gap-2 text-xs font-bold py-3 rounded-xl transition-all duration-200 ${
+                  tier.current
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200/20"
+                    : "bg-[#1A56FF] text-white hover:bg-[#1546CC] shadow-sm active:scale-[0.99]"
+                }`}
               >
-                {tier.cta} {!tier.current && <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />}
+                <span>{tier.cta}</span>
+                {!tier.current && <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />}
               </button>
             </div>
           ))}

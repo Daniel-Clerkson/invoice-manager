@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -12,10 +12,13 @@ import {
   X,
   Menu,
   Plus,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -25,12 +28,14 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({
   children,
-  username,
   onNewInvoiceClick,
 }: DashboardLayoutProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const [Username, setUsername] = useState("User");
+  const [loading, setLoading] = useState(true);
 
   const closeMobileSidebar = () => setMobileSidebarOpen(false);
 
@@ -39,13 +44,79 @@ export default function DashboardLayout({
     closeMobileSidebar();
   };
 
+  useEffect(() => {
+    async function loadData() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/");
+        return;
+      }
+
+      const [invoicesRes, profileRes] = await Promise.all([
+        supabase.from("invoices").select("*").eq("user_id", user.id),
+        supabase.from("profiles").select("username").eq("id", user.id).single(),
+      ]);
+
+      setUsername(profileRes.data?.username || "User");
+      setLoading(false);
+    }
+
+    loadData();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+
+      // Enforce absolute session teardown via Supabase Client
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Flush client navigation stack down to context gateway anchor
+      router.refresh();
+      router.push("/");
+    } catch (err) {
+      console.error("Failed executing operational logout trace:", err);
+    } finally {
+      setLoggingOut(false);
+      closeMobileSidebar();
+    }
+  };
+
   const menuItems = [
-    { name: "Dashboard", icon: <LayoutDashboard size={16} />, path: "/dashboard" },
-    { name: "Invoices", icon: <FileText size={16} />, path: "/dashboard/invoices" },
-    { name: "Directory", icon: <Folder size={16} />, path: "/dashboard/directory" },
-    { name: "Billing", icon: <CreditCard size={16} />, path: "/dashboard/billing" },
-    { name: "Subscriptions", icon: <Layers size={16} />, path: "/dashboard/subscriptions" },
-    { name: "Analytics", icon: <BarChart3 size={16} />, path: "/dashboard/analytics" },
+    {
+      name: "Dashboard",
+      icon: <LayoutDashboard size={16} />,
+      path: "/dashboard",
+    },
+    {
+      name: "Invoices",
+      icon: <FileText size={16} />,
+      path: "/dashboard/invoices",
+    },
+    {
+      name: "Directory",
+      icon: <Folder size={16} />,
+      path: "/dashboard/directory",
+    },
+    {
+      name: "Billing",
+      icon: <CreditCard size={16} />,
+      path: "/dashboard/billing",
+    },
+    {
+      name: "Subscriptions",
+      icon: <Layers size={16} />,
+      path: "/dashboard/subscriptions",
+    },
+    {
+      name: "Analytics",
+      icon: <BarChart3 size={16} />,
+      path: "/dashboard/analytics",
+    },
   ];
 
   const SidebarContent = () => (
@@ -53,8 +124,18 @@ export default function DashboardLayout({
       <div className="space-y-6">
         {/* Logo Brand Frame */}
         <div className="flex items-center justify-between lg:justify-start gap-2.5 px-2">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigateTo("/dashboard")}>
-            <Image src="/logo.svg" alt="logo" width={128} height={128} priority />
+          <div
+            className="flex items-center gap-2.5 cursor-pointer"
+            onClick={() => navigateTo("/dashboard")}
+          >
+            <Image
+              src="/logo.svg"
+              alt="Julath Logo"
+              width={130}
+              height={40}
+              className="object-contain"
+              priority
+            />
           </div>
           <button
             onClick={closeMobileSidebar}
@@ -66,19 +147,25 @@ export default function DashboardLayout({
 
         {/* User Identifier Box */}
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100/50">
-          <div className="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow-sm">
-            {username ? username.charAt(0).toUpperCase() : "U"}
+          <div className="w-9 h-9 rounded-full bg-[#111A3E] text-white font-bold text-sm flex items-center justify-center shadow-sm">
+            {Username ? Username.charAt(0).toUpperCase() : "U"}
           </div>
           <div className="truncate min-w-0 flex-1">
-            <h4 className="text-xs font-bold text-slate-800 truncate">{username || "Loading..."}</h4>
-            <p className="text-[10px] text-slate-400 font-medium truncate uppercase tracking-wider">Business Portal</p>
+            <h4 className="text-xs font-bold text-slate-800 truncate">
+              {Username || "Loading..."}
+            </h4>
+            <p className="text-[10px] text-slate-400 font-medium truncate uppercase tracking-wider">
+              Business Portal
+            </p>
           </div>
         </div>
 
         {/* Navigation Route Groups */}
         <nav className="space-y-6 pt-2">
           <div>
-            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest px-2.5 mb-2">Main Menu</p>
+            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest px-2.5 mb-2">
+              Main Menu
+            </p>
             <div className="space-y-1">
               {menuItems.map((item) => (
                 <SidebarLink
@@ -93,7 +180,9 @@ export default function DashboardLayout({
           </div>
 
           <div>
-            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest px-2.5 mb-2">Preference</p>
+            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest px-2.5 mb-2">
+              Preference
+            </p>
             <div className="space-y-1">
               <SidebarLink
                 icon={<Settings size={16} />}
@@ -106,14 +195,31 @@ export default function DashboardLayout({
         </nav>
       </div>
 
-      <div className="text-[11px] text-slate-400 px-2 border-t border-slate-50 pt-4">
-        v2.0.4 Redesign Platform
+      {/* Core Bottom Control Tray (Platform Version Details & Exit Module) */}
+      <div className="border-t border-slate-100 pt-4 space-y-3.5">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold tracking-tight text-slate-400 hover:text-rose-600 hover:bg-rose-50/50 transition-all disabled:opacity-50"
+        >
+          {loggingOut ? (
+            <Loader2 size={16} className="animate-spin text-rose-500" />
+          ) : (
+            <LogOut size={16} />
+          )}
+          <span>{loggingOut ? "Terminating..." : "Exit Platform"}</span>
+        </button>
+
+        <div className="text-[11px] text-slate-400 px-2">
+          v2.0.4 Redesign Platform
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen w-full bg-[#FAFAFA] flex font-sans text-slate-900 selection:bg-emerald-100 overflow-x-hidden relative">
+    <div className="min-h-screen w-full bg-[#FAFAFA] flex font-sans text-[#111A3E] selection:bg-[#C2D4FF] selection:text-[#111A3E] overflow-x-hidden relative">
       {/* Permanent Desktop Sidebar */}
       <aside className="hidden lg:block w-64 bg-white border-r border-slate-100 h-screen sticky top-0 flex-shrink-0 z-20">
         <SidebarContent />
@@ -155,19 +261,26 @@ export default function DashboardLayout({
               <Menu size={20} />
             </button>
             <div className="flex items-center lg:hidden gap-2">
-              <div className="h-6 w-6 rounded bg-emerald-600 text-white flex items-center justify-center">
+              <div className="h-6 w-6 rounded bg-[#1A56FF] text-white flex items-center justify-center">
                 <FileText size={12} />
               </div>
-              <span className="font-bold text-sm tracking-tight text-slate-900">InvoiceMe</span>
+              <span className="font-bold text-sm tracking-tight text-slate-900">
+                Julath
+              </span>
             </div>
             <div className="hidden lg:block text-xs font-medium text-slate-400">
-              System Operational Status: <span className="text-emerald-600 font-semibold">FIRS Framework Engaged</span>
+              System Operational Status:{" "}
+              <span className="text-[#1A56FF] font-semibold">
+                FIRS Framework Engaged
+              </span>
             </div>
           </div>
 
           <button
-            onClick={onNewInvoiceClick || (() => router.push("/dashboard/create"))}
-            className="flex items-center gap-1.5 bg-emerald-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-emerald-700 transition active:scale-95 shadow-sm"
+            onClick={
+              onNewInvoiceClick || (() => router.push("/dashboard/create"))
+            }
+            className="flex items-center gap-1.5 bg-[#1A56FF] hover:bg-[#1546CC] text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 shadow-sm"
           >
             <Plus size={14} />{" "}
             <span className="hidden sm:inline">New Invoice</span>
@@ -200,7 +313,7 @@ function SidebarLink({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all relative ${
         active
-          ? "text-emerald-700 bg-emerald-50/60 font-bold"
+          ? "text-[#1A56FF] bg-[#F0F4FF] font-bold"
           : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/50"
       }`}
     >
